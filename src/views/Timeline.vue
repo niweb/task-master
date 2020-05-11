@@ -1,16 +1,19 @@
 <template>
   <div class="timeline">
-    <Timeline />
+    <Calendar class="mt-10" />
+    <TaskForm />
   </div>
 </template>
 
 <script>
-import Timeline from "@/components/timeline/Timeline";
+import Calendar from "@/components/timeline/Calendar";
+import TaskForm from "@/components/task-form/TaskForm";
 
 export default {
-  name: "TimelinePage",
+  name: "Timeline",
   components: {
-    Timeline
+    Calendar,
+    TaskForm
   }
 };
 </script>

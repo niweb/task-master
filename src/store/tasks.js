@@ -42,6 +42,11 @@ export default {
     [getAll]: state => Object.values(state)
   },
   mutations: {
-    [add]: (state, task) => (state[task.id] = task)
+    [add]: (state, task) => {
+      const ids = Object.keys(state).map(id => +id);
+      const maxId = Math.max(ids) || 0;
+      task.id = maxId + 1;
+      Vue.set(state, task.id, task);
+    }
   }
 };

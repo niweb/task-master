@@ -1,9 +1,6 @@
 <template>
   <div class="task">
-    <div>
-      {{ task.title }}
-    </div>
-    <div>{{ task.start.format("ll") }} - {{ task.end.format("ll") }}</div>
+    {{ task.title }}
   </div>
 </template>
 
@@ -21,7 +18,9 @@ export default {
   background-color: #2c3e50;
   color: #fff;
   border-radius: 5px;
-  padding: 20px;
-  margin: 10px;
+  padding: 2px 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
-  <v-sheet class="ma-10">
-    <v-form ref="form" class="task-form" @submit="onSubmit">
+  <v-sheet class="pa-10">
+    <v-form ref="form" class="task-form" @submit="handleSubmit">
       <v-text-field
         v-model="values.title"
         label="Title"
@@ -28,8 +28,8 @@
         outlined
       ></DatePicker>
       <v-btn color="primary" type="submit">
-        <v-icon>mdi-plus</v-icon>
-        Add Task
+        <div v-if="task">Save</div>
+        <div v-else><v-icon>mdi-plus</v-icon>Add Task</div>
       </v-btn>
     </v-form>
   </v-sheet>
@@ -38,7 +38,7 @@
 <script>
 import moment from "moment";
 import { mapGetters, mapMutations } from "vuex";
-import { add } from "@/store/tasks.types";
+import { add, edit } from "@/store/tasks.types";
 import DatePicker from "@/components/task-form/DatePicker";
 import { getAll } from "@/store/assignees.types";
 import { modules } from "@/store";
@@ -62,16 +62,23 @@ export default {
     })
   },
   methods: {
-    ...mapMutations(modules.tasks, { addTask: add }),
-    onSubmit(e) {
+    ...mapMutations(modules.tasks, { addTask: add, editTask: edit }),
+    handleSubmit(e) {
       e.preventDefault();
-      this.addTask({
+      const submitValues = {
         ...this.values,
         start: this.values.start?.startOf("day"),
         end: this.values.end?.endOf("day")
-      });
+      };
 
-      this.resetForm();
+      if (this.task) {
+        this.editTask({ ...this.task, ...submitValues });
+      } else {
+        this.addTask(submitValues);
+        this.resetForm();
+      }
+
+      this.$emit("submit");
     },
 
     resetForm() {
@@ -88,8 +95,3 @@ export default {
   }
 };
 </script>
-
-<style scoped lang="scss">
-.task-form {
-}
-</style>

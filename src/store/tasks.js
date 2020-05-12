@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import moment from "moment";
 
-import { add, getAll, getByAssignee } from "@/store/tasks.types";
+import { add, edit, getAll, getByAssignee } from "@/store/tasks.types";
 import { generateNewId } from "@/utils";
 
 Vue.use(Vuex);
@@ -50,6 +50,9 @@ export default {
   mutations: {
     [add]: (state, task) => {
       task.id = generateNewId(Object.keys(state));
+      Vue.set(state, task.id, task);
+    },
+    [edit]: (state, task) => {
       Vue.set(state, task.id, task);
     }
   }

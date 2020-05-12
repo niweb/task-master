@@ -6,6 +6,7 @@
         label="Title"
         required
         outlined
+        autofocus
       ></v-text-field>
       <v-select
         v-model="values.assignee"
@@ -28,7 +29,7 @@
         outlined
       ></DatePicker>
       <v-btn color="primary" type="submit">
-        <div v-if="task">Save</div>
+        <div v-if="task && task.id">Save</div>
         <div v-else><v-icon>mdi-plus</v-icon>Add Task</div>
       </v-btn>
     </v-form>
@@ -71,7 +72,7 @@ export default {
         end: this.values.end?.endOf("day")
       };
 
-      if (this.task) {
+      if (this.task?.id) {
         this.editTask({ ...this.task, ...submitValues });
       } else {
         this.addTask(submitValues);
@@ -92,6 +93,14 @@ export default {
         ...this.task
       }
     };
+  },
+  watch: {
+    task() {
+      this.values = {
+        ...defaultValues,
+        ...this.task
+      };
+    }
   }
 };
 </script>

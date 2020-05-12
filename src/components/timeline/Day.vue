@@ -1,5 +1,5 @@
 <template>
-  <div :class="`day ${isWeekend(date) ? 'day--weekend' : ''}`">
+  <div :class="`day ${isWeekend(date) ? 'day--weekend' : ''}`" :style="cssVars">
     <div class="day__header">
       <div class="day__weekday">
         {{ date.format("ddd") }}
@@ -26,7 +26,19 @@ const today = moment();
 export default {
   name: "Day",
   props: {
-    date: Object /** Moment */
+    date: Object /** Moment */,
+    width: {
+      type: Number,
+      required: false,
+      default: 50
+    }
+  },
+  computed: {
+    cssVars() {
+      return {
+        "--width": `${this.width}px`
+      };
+    }
   },
   methods: {
     isToday(day) {
@@ -42,7 +54,7 @@ export default {
 
 <style scoped lang="scss">
 .day {
-  width: 50px;
+  width: var(--width);
   border: 1px solid #efefef;
   flex-shrink: 0;
 

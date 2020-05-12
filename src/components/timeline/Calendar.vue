@@ -7,10 +7,16 @@
           :key="assignee.id"
           :assignee="assignee"
           :dates="days"
+          :column-width="columnWidth"
           class="lane"
         ></Lane>
       </div>
-      <Day v-for="day in days" :key="day.format()" :date="day"></Day>
+      <Day
+        v-for="day in days"
+        :key="day.format()"
+        :date="day"
+        :width="columnWidth"
+      ></Day>
     </div>
   </div>
 </template>
@@ -45,7 +51,8 @@ export default {
     );
     return {
       today: moment(),
-      days: Array.from(range.by("day", { excludeEnd: true }))
+      days: Array.from(range.by("day", { excludeEnd: true })),
+      columnWidth: 50
     };
   }
 };

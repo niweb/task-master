@@ -38,11 +38,15 @@ export default {
     assignee: {
       type: Object,
       required: true
+    },
+    columnWidth: {
+      type: Number,
+      default: 50,
+      required: false
     }
   },
   data() {
     return {
-      columnWidth: 50, //TODO: should probably be a prop b/c same width needs to be used in calendar cols
       newTaskDates: [null, null],
       newTask: {},
       dialog: false
@@ -111,6 +115,7 @@ export default {
   grid-template-rows: auto;
   background: rgba(0, 0, 0, 0.1);
   border-top: 2px solid rgba(0, 0, 0, 0.4);
+  cursor: crosshair;
 
   .name {
     position: fixed;

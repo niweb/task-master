@@ -7,6 +7,14 @@
         required
         outlined
       ></v-text-field>
+      <v-select
+        v-model="values.assignee"
+        :items="assignees"
+        item-text="name"
+        item-value="id"
+        label="Assignee"
+        outlined
+      ></v-select>
       <DatePicker
         v-model="values.start"
         label="Start Date"
@@ -29,12 +37,15 @@
 
 <script>
 import moment from "moment";
-import { mapMutations } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { add } from "@/store/tasks.types";
 import DatePicker from "@/components/task-form/DatePicker";
+import { getAll } from "@/store/assignees.types";
+import { modules } from "@/store";
 
 const defaultValues = {
   title: "",
+  assignee: 0,
   start: moment(),
   end: moment()
 };
@@ -45,8 +56,13 @@ export default {
   props: {
     task: Object
   },
+  computed: {
+    ...mapGetters(modules.assignees, {
+      assignees: getAll
+    })
+  },
   methods: {
-    ...mapMutations("tasks", { addTask: add }),
+    ...mapMutations(modules.tasks, { addTask: add }),
     onSubmit(e) {
       e.preventDefault();
       this.addTask({

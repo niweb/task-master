@@ -2,9 +2,13 @@
   <div class="scroll-wrapper">
     <div class="calendar">
       <div class="lanes">
-        <Lane :dates="days" class="lane"></Lane>
-        <Lane :dates="days" class="lane"></Lane>
-        <Lane :dates="days" class="lane"></Lane>
+        <Lane
+          v-for="assignee in assignees"
+          :key="assignee.id"
+          :assignee="assignee"
+          :dates="days"
+          class="lane"
+        ></Lane>
       </div>
       <Day v-for="day in days" :key="day.format()" :date="day"></Day>
     </div>
@@ -14,8 +18,12 @@
 <script>
 import Moment from "moment";
 import { extendMoment } from "moment-range";
+import { mapGetters } from "vuex";
+
 import Day from "@/components/timeline/Day";
 import Lane from "@/components/timeline/Lane";
+import { getAll } from "@/store/assignees.types";
+import { modules } from "@/store";
 
 const moment = extendMoment(Moment);
 
@@ -24,6 +32,11 @@ export default {
   components: {
     Day,
     Lane
+  },
+  computed: {
+    ...mapGetters(modules.assignees, {
+      assignees: getAll
+    })
   },
   data() {
     const range = moment.range(

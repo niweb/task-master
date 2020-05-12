@@ -1,7 +1,10 @@
 <template>
   <div class="lane" :style="laneCssVars">
+    <div class="name">
+      {{ assignee.name }}
+    </div>
     <Task
-      v-for="task in tasks"
+      v-for="task in tasksByAssignee(assignee.id)"
       :style="getTaskCssVars(task)"
       :key="task.id"
       :task="task"
@@ -12,7 +15,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { modules } from "@/store";
-import { getAll } from "@/store/tasks.types";
+import { getByAssignee } from "@/store/tasks.types";
 import Task from "@/components/timeline/Task";
 
 export default {
@@ -21,7 +24,11 @@ export default {
     Task
   },
   props: {
-    dates: Array /** Moment[] */
+    dates: Array /** Moment[] */,
+    assignee: {
+      type: Object,
+      required: true
+    }
   },
   methods: {
     getTaskCssVars(task) {
@@ -35,7 +42,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(modules.tasks, { tasks: getAll }),
+    ...mapGetters(modules.tasks, { tasksByAssignee: getByAssignee }),
     laneCssVars() {
       return {
         "--number-of-columns": this.dates.length
@@ -54,10 +61,22 @@ export default {
   grid-template-columns: repeat(var(--number-of-columns), 50px);
   grid-template-rows: auto;
   background: rgba(0, 0, 0, 0.1);
+  border-top: 2px solid rgba(0, 0, 0, 0.4);
+
+  .name {
+    position: fixed;
+    left: 10px;
+    margin-top: -15px;
+    background-color: white;
+    padding: 2px 15px;
+    border-radius: 5px;
+    border: 2px solid rgba(0, 0, 0, 0.4);
+  }
 
   .task {
     grid-column: var(--start-col) / var(--end-col);
     margin: 2px 0;
+    place-self: center stretch;
   }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="counter">
-    <button class="async-increase" @click="asyncDecrease">async +</button>
+    <button class="async-increase" @click="asyncDecrease">async -</button>
 
     <button class="decrease" @click="decrease">-</button>
     <div class="display">{{ count }}</div>
@@ -19,18 +19,19 @@ import {
   getCount,
   increase
 } from "@/store/counter.types";
+import { modules } from "@/store";
 
 export default {
   name: "Counter",
-  computed: mapGetters("counter", {
+  computed: mapGetters(modules.counter, {
     count: getCount
   }),
   methods: {
-    ...mapMutations("counter", {
+    ...mapMutations(modules.counter, {
       increase,
       decrease
     }),
-    ...mapActions("counter", {
+    ...mapActions(modules.counter, {
       asyncIncrease,
       asyncDecrease
     })

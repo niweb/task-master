@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll-wrapper">
+  <div class="scroll-wrapper" @scroll="onScroll">
     <div class="calendar">
       <div class="lanes">
         <Lane
@@ -8,6 +8,7 @@
           :assignee="assignee"
           :dates="days"
           :column-width="columnWidth"
+          :scroll-offset-x="offsetX"
           class="lane"
         ></Lane>
       </div>
@@ -44,6 +45,16 @@ export default {
       assignees: getAll
     })
   },
+  methods: {
+    onScroll(e) {
+      this.offsetX = e.target.scrollLeft;
+      const offsetRight = this.offsetX + e.target.clientWidth;
+      const calendarWidth = this.days.length * this.columnWidth;
+      if (calendarWidth <= offsetRight) {
+        console.log("load more days");
+      }
+    }
+  },
   data() {
     const range = moment.range(
       moment().subtract(1.5, "weeks"),
@@ -52,7 +63,8 @@ export default {
     return {
       today: moment(),
       days: Array.from(range.by("day", { excludeEnd: true })),
-      columnWidth: 50
+      columnWidth: 50,
+      offsetX: 0
     };
   }
 };
@@ -61,6 +73,7 @@ export default {
 <style scoped lang="scss">
 .scroll-wrapper {
   width: 100%;
+  height: 100%;
   overflow: auto;
 }
 
@@ -68,6 +81,7 @@ export default {
   position: relative;
   display: flex;
   flex-flow: row;
+  height: 100%;
 }
 
 .lanes {

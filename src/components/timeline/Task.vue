@@ -25,7 +25,7 @@ export default {
   }
 };
 </script>
-fi
+
 <style scoped lang="scss">
 .task {
   background-color: #2c3e50;

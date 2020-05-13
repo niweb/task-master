@@ -1,6 +1,6 @@
 <template>
   <div class="timeline">
-    <Calendar class="mt-10" />
+    <Calendar />
   </div>
 </template>
 
@@ -14,3 +14,10 @@ export default {
   }
 };
 </script>
+
+<style scoped lang="scss">
+.timeline {
+  height: 100%;
+  padding-top: 40px;
+}
+</style>

@@ -58,6 +58,10 @@ export default {
   border: 1px solid #efefef;
   flex-shrink: 0;
 
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
   &--weekend {
     background: repeating-linear-gradient(
       -55deg,
@@ -79,6 +83,7 @@ export default {
   }
 
   &__body {
+    flex-grow: 1;
     min-height: 300px;
   }
 }

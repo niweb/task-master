@@ -43,6 +43,10 @@ export default {
       type: Number,
       default: 50,
       required: false
+    },
+    scrollOffsetX: {
+      type: Number,
+      required: true
     }
   },
   data() {
@@ -98,7 +102,8 @@ export default {
     laneCssVars() {
       return {
         "--number-of-columns": this.dates.length,
-        "--column-width": `${this.columnWidth}px`
+        "--column-width": `${this.columnWidth}px`,
+        "--offset-x": `${this.scrollOffsetX}px`
       };
     }
   }
@@ -110,7 +115,7 @@ export default {
   display: grid;
   width: 100%;
   min-height: 50px;
-  padding: 5px 0;
+  padding: 5px 0 15px 0;
   grid-template-columns: repeat(var(--number-of-columns), var(--column-width));
   grid-template-rows: auto;
   background: rgba(0, 0, 0, 0.1);
@@ -118,8 +123,8 @@ export default {
   cursor: crosshair;
 
   .name {
-    position: fixed;
-    left: 10px;
+    position: absolute;
+    left: calc(var(--offset-x) + 10px);
     margin-top: -15px;
     background-color: white;
     padding: 2px 15px;

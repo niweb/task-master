@@ -6,9 +6,8 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: paths.counter,
-    name: "Counter",
-    component: () => import("../views/Counter.vue")
+    path: "",
+    redirect: paths.timeline
   },
   {
     path: paths.timeline,

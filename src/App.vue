@@ -8,7 +8,6 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn text class="mx-1" to="/counter">Counter</v-btn>
       <v-btn text class="mx-1" to="/timeline">Timeline</v-btn>
     </v-app-bar>
 

@@ -21,11 +21,13 @@
 </template>
 
 <script>
+import moment from "moment";
 import { mapGetters } from "vuex";
 import { modules } from "@/store";
 import { getByAssignee } from "@/store/tasks.types";
 import Task from "@/components/timeline/Task";
 import TaskForm from "@/components/task-form/TaskForm";
+import { isAssignee } from "@/store/assignees.schema";
 
 export default {
   name: "Lane",
@@ -34,9 +36,13 @@ export default {
     TaskForm
   },
   props: {
-    dates: Array /** Moment[] */,
+    dates: {
+      type: Array,
+      validator: prop => prop.every(e => e instanceof moment)
+    },
     assignee: {
       type: Object,
+      validator: isAssignee,
       required: true
     },
     columnWidth: {

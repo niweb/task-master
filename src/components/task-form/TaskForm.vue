@@ -43,6 +43,7 @@ import { add, edit } from "@/store/tasks.types";
 import DatePicker from "@/components/task-form/DatePicker";
 import { getAll } from "@/store/assignees.types";
 import { modules } from "@/store";
+import { isPartialTask, isTask } from "@/store/tasks.schema";
 
 const defaultValues = {
   title: "",
@@ -55,7 +56,10 @@ export default {
   name: "TaskForm",
   components: { DatePicker },
   props: {
-    task: Object
+    task: {
+      type: Object,
+      validator: prop => (prop.id ? isTask(prop) : isPartialTask(prop))
+    }
   },
   computed: {
     ...mapGetters(modules.assignees, {

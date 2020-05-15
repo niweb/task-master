@@ -9,11 +9,15 @@
 
 <script>
 import TaskForm from "@/components/task-form/TaskForm";
+import { isTask } from "@/store/tasks.schema";
 
 export default {
   name: "Task",
   props: {
-    task: Object
+    task: {
+      type: Object,
+      validator: isTask
+    }
   },
   components: {
     TaskForm

@@ -26,7 +26,7 @@ const today = moment();
 export default {
   name: "Day",
   props: {
-    date: Object /** Moment */,
+    date: moment,
     width: {
       type: Number,
       required: false,

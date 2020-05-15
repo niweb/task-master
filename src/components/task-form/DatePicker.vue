@@ -24,7 +24,7 @@ export default {
   name: "DatePicker",
   props: {
     label: String,
-    value: Object /** Moment*/
+    value: moment
   },
   data() {
     return {

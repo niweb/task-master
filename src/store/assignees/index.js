@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import { add, getAll } from "@/store/tasks.types";
+import { add, getAll } from "@/store/tasks/types";
 import { generateNewId } from "@/utils";
 
 Vue.use(Vuex);

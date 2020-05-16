@@ -3,8 +3,8 @@
  */
 export const generateNewId = currentIds => {
   const ids = currentIds.map(id => Number(id));
-  const maxId = Math.max(...ids) || 0;
-  return maxId + 1;
+  const maxId = Math.max(...ids);
+  return ids.length > 0 ? maxId + 1 : 0;
 };
 
 /**

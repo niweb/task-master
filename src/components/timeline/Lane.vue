@@ -25,10 +25,10 @@
 import moment from "moment";
 import { mapGetters } from "vuex";
 import { modules } from "@/store";
-import { getByAssignee } from "@/store/tasks.types";
+import { getByAssignee } from "@/store/tasks/types";
 import Task from "@/components/timeline/Task";
 import TaskForm from "@/components/task-form/TaskForm";
-import { isAssignee } from "@/store/assignees.schema";
+import { isAssignee } from "@/store/assignees/schema";
 
 export default {
   name: "Lane",

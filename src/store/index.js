@@ -1,8 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import tasks from "./tasks";
+import tasks from "@/store/tasks";
 import assignees from "@/store/assignees";
+import { INIT_STORE, persist } from "@/store/plugins";
 
 export const modules = {
   tasks: "tasks",
@@ -16,5 +17,9 @@ export default new Vuex.Store({
   modules: {
     [modules.tasks]: tasks,
     [modules.assignees]: assignees
-  }
+  },
+  mutations: {
+    [INIT_STORE]: (state, init) => Object.assign(state, init)
+  },
+  plugins: [persist]
 });

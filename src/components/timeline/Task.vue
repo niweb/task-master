@@ -36,9 +36,9 @@ import { mapMutations } from "vuex";
 import moment from "moment";
 
 import TaskForm from "@/components/task-form/TaskForm";
-import { isTask } from "@/store/tasks.schema";
+import { isTask } from "@/store/tasks/schema";
 import { modules } from "@/store";
-import { edit } from "@/store/tasks.types";
+import { edit } from "@/store/tasks/types";
 import { debounce } from "@/utils";
 
 export default {

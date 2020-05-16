@@ -29,7 +29,7 @@ import { mapGetters } from "vuex";
 
 import Day from "@/components/timeline/Day";
 import Lane from "@/components/timeline/Lane";
-import { getAll } from "@/store/assignees.types";
+import { getAll } from "@/store/assignees/types";
 import { modules } from "@/store";
 
 const moment = extendMoment(Moment);

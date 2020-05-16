@@ -5,7 +5,7 @@ import {
   validatePartialSchema,
   validateSchema
 } from "@/utils";
-import { assignee } from "@/store/assignees.schema";
+import { assignee } from "@/store/assignees/schema";
 
 const task = {
   id: isType("number"),

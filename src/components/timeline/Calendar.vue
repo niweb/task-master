@@ -1,22 +1,22 @@
 <template>
   <div class="scroll-wrapper" @scroll="onScroll">
-    <div class="calendar">
-      <div class="lanes">
-        <Lane
-          v-for="assignee in assignees"
-          :key="assignee.id"
-          :assignee="assignee"
-          :dates="days"
-          :column-width="columnWidth"
-          :scroll-offset-x="offsetX"
-          class="lane"
-        ></Lane>
-      </div>
+    <div class="calendar" :style="cssVars">
+      <Lane
+        v-for="(assignee, index) in assignees"
+        class="lane"
+        :style="`--index: ${index};`"
+        :key="assignee.id"
+        :assignee="assignee"
+        :dates="days"
+        :column-width="columnWidth"
+        :scroll-offset-x="offsetX"
+      ></Lane>
       <Day
-        v-for="day in days"
+        v-for="(day, index) in days"
+        class="day"
+        :style="`--index: ${index};`"
         :key="day.format()"
         :date="day"
-        :width="columnWidth"
       ></Day>
     </div>
   </div>
@@ -43,7 +43,14 @@ export default {
   computed: {
     ...mapGetters(modules.assignees, {
       assignees: getAll
-    })
+    }),
+    cssVars() {
+      return {
+        "--columns": this.days.length,
+        "--column-width": `${this.columnWidth}px`,
+        "--lanes": this.assignees.length
+      };
+    }
   },
   methods: {
     onScroll(e) {
@@ -55,14 +62,18 @@ export default {
       }
     }
   },
+  mounted() {
+    const today = moment();
+    const indexOfToday = this.days.findIndex(day => day.isSame(today, "d"));
+    const calendarWidth = this.$el.clientWidth;
+    this.$el.scrollTo(indexOfToday * this.columnWidth - calendarWidth / 3, 0);
+  },
   data() {
-    const range = moment.range(
-      moment().subtract(1.5, "weeks"),
-      moment().add(3, "weeks")
-    );
+    const range = moment
+      .range(moment().subtract(3, "weeks"), moment().add(6, "weeks"))
+      .by("day", { excludeEnd: true });
     return {
-      today: moment(),
-      days: Array.from(range.by("day", { excludeEnd: true })),
+      days: Array.from(range).map(d => d.startOf("d")),
       columnWidth: 50,
       offsetX: 0
     };
@@ -78,19 +89,22 @@ export default {
 }
 
 .calendar {
-  position: relative;
-  display: flex;
-  flex-flow: row;
+  --rows: calc(var(--lanes) + 2);
   height: 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--columns), var(--column-width));
+  grid-template-rows: [header] 60px [lanes] repeat(var(--lanes), auto) [remaining-space] 1fr;
 }
 
-.lanes {
-  z-index: 1;
-  position: absolute;
-  top: 60px;
+.day {
+  grid-row: 1 / span var(--rows);
+  grid-column: calc(var(--index) + 1); // grid starts with 1
+}
 
-  .lane {
-    margin: 20px 0;
-  }
+.lane {
+  z-index: 1;
+  margin: 20px 0;
+  grid-column: 1 / span var(--columns);
+  grid-row: calc(var(--index) + 2); // grid starts with 1 + exclude header row
 }
 </style>

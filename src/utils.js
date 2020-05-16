@@ -1,8 +1,26 @@
+/**
+ * Generate a new id, that is not yet assigned
+ */
 export const generateNewId = currentIds => {
   const ids = currentIds.map(id => Number(id));
   const maxId = Math.max(...ids) || 0;
   return maxId + 1;
 };
+
+/**
+ * Debounce the execution of a function by a given delay in ms
+ */
+export function debounce(fn, delay) {
+  let timeoutID = null;
+  return function() {
+    clearTimeout(timeoutID);
+    const args = arguments;
+    const that = this;
+    timeoutID = setTimeout(function() {
+      fn.apply(that, args);
+    }, delay);
+  };
+}
 
 /** =========================
  *  Validating Object Schemas

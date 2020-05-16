@@ -10,9 +10,10 @@
     </div>
     <Task
       v-for="task in tasksByAssignee(assignee.id)"
-      :style="getTaskCssVars(task)"
       :key="task.id"
       :task="task"
+      :first-day-in-calendar="dates[0]"
+      :pixels-per-day="columnWidth"
     ></Task>
     <v-dialog v-model="dialog" max-width="400">
       <TaskForm :task="newTask" @submit="dialog = false"></TaskForm>
@@ -63,17 +64,6 @@ export default {
     };
   },
   methods: {
-    getTaskCssVars(task) {
-      return {
-        "--start-col": this.getDistanceToFirstDate(task.start) + 1, // +1: grid system starts with 1
-        "--end-col": this.getDistanceToFirstDate(task.end) + 1
-      };
-    },
-
-    getDistanceToFirstDate(day) {
-      return day.diff(this.dates[0], "day") + 1; // +1: include start day
-    },
-
     onMouseDown(e) {
       const startDay = this.getDayByOffset(e.offsetX);
       this.newTaskDates = [startDay, startDay];
@@ -118,12 +108,10 @@ export default {
 
 <style scoped lang="scss">
 .lane {
-  display: grid;
+  position: relative;
   width: 100%;
   min-height: 50px;
   padding: 5px 0 15px 0;
-  grid-template-columns: repeat(var(--number-of-columns), var(--column-width));
-  grid-template-rows: auto;
   background: rgba(0, 0, 0, 0.1);
   border-top: 2px solid rgba(0, 0, 0, 0.4);
   cursor: crosshair;
@@ -131,6 +119,7 @@ export default {
   .name {
     position: absolute;
     left: calc(var(--offset-x) + 10px);
+    z-index: 1;
     margin-top: -15px;
     background-color: white;
     padding: 2px 15px;
@@ -139,9 +128,8 @@ export default {
   }
 
   .task {
-    grid-column: var(--start-col) / var(--end-col);
+    position: absolute;
     margin: 2px 0;
-    place-self: center stretch;
   }
 }
 </style>

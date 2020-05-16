@@ -24,7 +24,7 @@ export default {
       title: "Bar",
       assignee: 1,
       start: moment()
-        .subtract(6, "days")
+        .subtract(11, "days")
         .startOf("day"),
       end: moment()
         .add(1, "days")

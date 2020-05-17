@@ -25,6 +25,15 @@
       >
         <v-icon>mdi-pencil</v-icon>
       </v-btn>
+      <v-btn
+        x-small
+        icon
+        color="white"
+        class="task__delete-btn"
+        @click="deleteTask(task.id)"
+      >
+        <v-icon>mdi-trash-can</v-icon>
+      </v-btn>
     </div>
     <v-dialog v-model="dialog" max-width="400">
       <TaskForm :task="task" @submit="dialog = false"></TaskForm>
@@ -40,7 +49,7 @@ import moment from "moment";
 import TaskForm from "@/components/task-form/TaskForm";
 import { isTask } from "@/store/tasks/schema";
 import { modules } from "@/store";
-import { edit } from "@/store/tasks/types";
+import { edit, remove } from "@/store/tasks/types";
 
 export default {
   name: "Task",
@@ -90,7 +99,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(modules.tasks, { editTask: edit }),
+    ...mapMutations(modules.tasks, { editTask: edit, deleteTask: remove }),
     getSpaceBetween(start, end) {
       return end.diff(start, "d") * this.pixelsPerDay;
     },
@@ -130,15 +139,15 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    align-self: stretch;
+
     display: flex;
-    align-self: center;
+    align-items: center;
   }
 
   &__title {
-  }
-
-  &__edit-btn {
-    margin-left: auto;
+    flex-shrink: 1;
+    margin-right: auto;
   }
 
   &__handle {

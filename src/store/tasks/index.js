@@ -2,7 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import moment from "moment";
 
-import { add, edit, getAll, getByAssignee } from "@/store/tasks/types";
+import { add, edit, getAll, getByAssignee, remove } from "@/store/tasks/types";
 import { generateNewId } from "@/utils";
 
 Vue.use(Vuex);
@@ -34,6 +34,9 @@ export default {
     },
     [edit]: (state, task) => {
       Vue.set(state, task.id, stringify(task));
+    },
+    [remove]: (state, taskId) => {
+      Vue.delete(state, taskId);
     }
   }
 };

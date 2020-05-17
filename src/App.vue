@@ -8,6 +8,14 @@
 
       <v-spacer></v-spacer>
 
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on" icon class="mx-1" @click="downloadAppState">
+            <v-icon>mdi-download</v-icon>
+          </v-btn>
+        </template>
+        <span>Export</span>
+      </v-tooltip>
       <v-btn text class="mx-1" to="/timeline">Timeline</v-btn>
     </v-app-bar>
 
@@ -16,3 +24,10 @@
     </v-content>
   </v-app>
 </template>
+
+<script>
+import exportAppState from "@/mixins/export";
+export default {
+  mixins: [exportAppState]
+};
+</script>

@@ -2,11 +2,13 @@
   <VueDraggableResizable
     :prevent-deactivation="true"
     :handles="['mr', 'ml']"
-    :grid="[50, 40]"
+    :axis="'x'"
+    :grid="[pixelsPerDay, height]"
     :x="left"
+    :y="top"
     :w="width"
-    :minWidth="50"
-    :h="30"
+    :h="height - marginY * 2"
+    :minWidth="pixelsPerDay"
     :onResize="onResize"
     :onDrag="onDrag"
     class-name-handle="task__handle"
@@ -48,6 +50,16 @@ export default {
       type: Object,
       validator: isTask
     },
+    top: {
+      type: Number,
+      required: false,
+      default: 0
+    },
+    height: {
+      type: Number,
+      required: false,
+      default: 30
+    },
     firstDayInCalendar: {
       type: moment,
       required: true
@@ -64,7 +76,8 @@ export default {
   },
   data() {
     return {
-      dialog: false
+      dialog: false,
+      marginY: 1
     };
   },
   computed: {

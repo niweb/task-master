@@ -8,13 +8,17 @@
     <div class="name">
       {{ assignee.name }}
     </div>
-    <Task
-      v-for="task in tasksByAssignee(assignee.id)"
-      :key="task.id"
-      :task="task"
-      :first-day-in-calendar="dates[0]"
-      :pixels-per-day="columnWidth"
-    ></Task>
+    <template v-for="(taskLane, index) in sortedTasks">
+      <Task
+        v-for="task in taskLane"
+        :key="task.id"
+        :task="task"
+        :top="index * taskHeight"
+        :height="taskHeight"
+        :first-day-in-calendar="dates[0]"
+        :pixels-per-day="columnWidth"
+      ></Task>
+    </template>
     <v-dialog v-model="dialog" max-width="400">
       <TaskForm :task="newTask" @submit="dialog = false"></TaskForm>
     </v-dialog>
@@ -60,7 +64,8 @@ export default {
     return {
       newTaskDates: [null, null],
       newTask: {},
-      dialog: false
+      dialog: false,
+      taskHeight: 30
     };
   },
   methods: {
@@ -79,7 +84,7 @@ export default {
 
     createNewTask() {
       const dates = this.newTaskDates;
-      dates.sort((a, b) => a.format("YYYYMMDD") - b.format("YYYYMMDD"));
+      dates.sort((a, b) => a.diff(b));
       this.newTask = {
         assignee: this.assignee.id,
         start: dates[0],
@@ -91,15 +96,48 @@ export default {
     getDayByOffset(offset) {
       const index = Math.floor(offset / this.columnWidth);
       return this.dates[index];
+    },
+
+    tasksOverlap(a, b) {
+      const rangeA = moment.range(a.start, a.end);
+      const rangeB = moment.range(b.start, b.end);
+      return rangeA.overlaps(rangeB);
     }
   },
   computed: {
     ...mapGetters(modules.tasks, { tasksByAssignee: getByAssignee }),
+    sortedTasks() {
+      const tasks = this.tasksByAssignee(this.assignee.id) || [];
+      let lanes = [];
+      tasks
+        .slice()
+        .sort((a, b) => a.start.diff(b.start))
+        .forEach(task => {
+          let sorted = false;
+          let i = 0;
+          while (!sorted) {
+            if (lanes[i] == null) {
+              lanes[i] = [task];
+              sorted = true;
+            } else if (
+              lanes[i].every(sortedTask => !this.tasksOverlap(sortedTask, task))
+            ) {
+              lanes[i].push(task);
+              sorted = true;
+            } else {
+              i++;
+            }
+          }
+        });
+      return lanes;
+    },
     laneCssVars() {
       return {
         "--number-of-columns": this.dates.length,
         "--column-width": `${this.columnWidth}px`,
-        "--offset-x": `${this.scrollOffsetX}px`
+        "--offset-x": `${this.scrollOffsetX}px`,
+        "--task-lanes": this.sortedTasks.length,
+        "--task-height": `${this.taskHeight}px`
       };
     }
   }
@@ -108,10 +146,15 @@ export default {
 
 <style scoped lang="scss">
 .lane {
+  --padding-top: 5px;
+  --padding-bottom: 25px;
+  --padding-y: calc(var(--padding-top) + var(--padding-bottom));
+
   position: relative;
   width: 100%;
   min-height: 50px;
-  padding: 5px 0 15px 0;
+  height: calc(var(--task-lanes) * var(--task-height) + var(--padding-y));
+  padding: var(--padding-top) 0 var(--padding-bottom) 0;
   background: rgba(0, 0, 0, 0.1);
   border-top: 2px solid rgba(0, 0, 0, 0.4);
   cursor: crosshair;

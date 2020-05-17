@@ -9,8 +9,8 @@
     :w="width"
     :h="height - marginY * 2"
     :minWidth="pixelsPerDay"
-    :onResize="onResize"
-    :onDrag="onDrag"
+    @resizestop="onResize"
+    @dragstop="onDrag"
     class-name-handle="task__handle"
     class="task"
   >
@@ -41,7 +41,6 @@ import TaskForm from "@/components/task-form/TaskForm";
 import { isTask } from "@/store/tasks/schema";
 import { modules } from "@/store";
 import { edit } from "@/store/tasks/types";
-import { debounce } from "@/utils";
 
 export default {
   name: "Task",
@@ -98,12 +97,12 @@ export default {
     getDayAfter(start, pixels) {
       return moment(start).add(pixels / this.pixelsPerDay, "d");
     },
-    onResize: debounce(function(handle, x, y, width) {
+    onResize(x, y, width) {
       this.updateTask(x, width);
-    }, 300),
-    onDrag: debounce(function(x) {
+    },
+    onDrag(x) {
       this.updateTask(x, this.width);
-    }, 300),
+    },
     updateTask(x, width) {
       if (x !== this.left || width !== this.width) {
         const start = this.getDayAfter(this.firstDayInCalendar, x).startOf("d");

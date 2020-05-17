@@ -7,21 +7,6 @@ export const generateNewId = currentIds => {
   return ids.length > 0 ? maxId + 1 : 0;
 };
 
-/**
- * Debounce the execution of a function by a given delay in ms
- */
-export function debounce(fn, delay) {
-  let timeoutID = null;
-  return function() {
-    clearTimeout(timeoutID);
-    const args = arguments;
-    const that = this;
-    timeoutID = setTimeout(function() {
-      fn.apply(that, args);
-    }, delay);
-  };
-}
-
 /** =========================
  *  Validating Object Schemas
  *  =========================

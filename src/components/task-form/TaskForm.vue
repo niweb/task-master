@@ -29,8 +29,8 @@
         outlined
       ></DatePicker>
       <v-btn color="primary" type="submit">
-        <div v-if="task && task.id">Save</div>
-        <div v-else><v-icon>mdi-plus</v-icon>Add Task</div>
+        <div v-if="isNewTask"><v-icon>mdi-plus</v-icon>Add Task</div>
+        <div v-else>Save</div>
       </v-btn>
     </v-form>
   </v-sheet>
@@ -64,7 +64,10 @@ export default {
   computed: {
     ...mapGetters(modules.assignees, {
       assignees: getAll
-    })
+    }),
+    isNewTask() {
+      return this.task?.id == null;
+    }
   },
   methods: {
     ...mapMutations(modules.tasks, { addTask: add, editTask: edit }),
@@ -76,11 +79,11 @@ export default {
         end: this.values.end?.endOf("day")
       };
 
-      if (this.task?.id) {
-        this.editTask({ ...this.task, ...submitValues });
-      } else {
+      if (this.isNewTask) {
         this.addTask(submitValues);
         this.resetForm();
+      } else {
+        this.editTask({ ...this.task, ...submitValues });
       }
 
       this.$emit("submit");

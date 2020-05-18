@@ -11,8 +11,10 @@
     :minWidth="pixelsPerDay"
     @resizestop="onResize"
     @dragstop="onDrag"
+    :onDragStart="onDragStart"
     class-name-handle="task__handle"
     class="task"
+    :style="cssVars"
   >
     <div class="task__content">
       <span class="task__title">{{ task.title }}</span>
@@ -85,6 +87,7 @@ export default {
   data() {
     return {
       dialog: false,
+      dragging: false,
       marginY: 1
     };
   },
@@ -96,6 +99,9 @@ export default {
       return (
         this.getSpaceBetween(this.task.start, this.task.end) + this.pixelsPerDay //fill column for end day
       );
+    },
+    cssVars() {
+      return { "--drag-cursor": this.dragging ? "grabbing" : "grab" };
     }
   },
   methods: {
@@ -111,6 +117,10 @@ export default {
     },
     onDrag(x) {
       this.updateTask(x, this.width);
+      this.dragging = false;
+    },
+    onDragStart() {
+      this.dragging = true;
     },
     updateTask(x, width) {
       if (x !== this.left || width !== this.width) {
@@ -134,6 +144,7 @@ export default {
   display: flex;
 
   &__content {
+    cursor: var(--drag-cursor);
     flex: 1 1 auto;
     padding: 2px 5px;
     overflow: hidden;

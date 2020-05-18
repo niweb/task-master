@@ -1,13 +1,17 @@
 <template>
-  <div class="name">
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on }">
-        <span @click.stop="dialog = true" v-on="on">
-          {{ assignee.name }}
-        </span>
-      </template>
-      Edit {{ assignee.name }}
-    </v-tooltip>
+  <div class="name-tag">
+    <span>
+      {{ assignee.name }}
+    </span>
+    <v-btn
+      x-small
+      icon
+      color="primary"
+      class="edit-btn"
+      @click.stop="dialog = true"
+    >
+      <v-icon>mdi-pencil</v-icon>
+    </v-btn>
     <v-dialog v-model="dialog" max-width="400">
       <AssigneeForm
         :assignee="assignee"
@@ -42,12 +46,15 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.name {
+.name-tag {
   cursor: pointer;
   margin-top: -15px;
   background-color: white;
   padding: 2px 15px;
   border-radius: 5px;
   border: 2px solid rgba(0, 0, 0, 0.4);
+
+  display: flex;
+  align-items: center;
 }
 </style>

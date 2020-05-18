@@ -46,6 +46,7 @@ import { modules } from "@/store";
 import { isPartialTask, isTask } from "@/store/tasks/schema";
 
 const defaultValues = {
+  id: null,
   title: "",
   assignee: 0,
   start: moment(),

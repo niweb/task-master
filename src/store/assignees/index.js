@@ -1,29 +1,29 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import { add, getAll, edit } from "@/store/assignees/types";
+import { add, getAll, edit, set } from "@/store/assignees/types";
 import { generateNewId } from "@/utils";
 
 Vue.use(Vuex);
 
 export default {
   namespaced: true,
-  state: {
-    0: {
-      id: 0,
-      name: "Default"
-    }
-  },
+  state: [{ id: 0, name: "Default" }],
   getters: {
-    [getAll]: state => Object.values(state)
+    [getAll]: state => state
   },
   mutations: {
+    [set]: (state, list) => {
+      state.splice(0);
+      state.push(...list);
+    },
     [add]: (state, assignee) => {
       assignee.id = generateNewId(Object.keys(state));
-      Vue.set(state, assignee.id, assignee);
+      state.push(assignee);
     },
     [edit]: (state, assignee) => {
-      Vue.set(state, assignee.id, assignee);
+      const i = state.findIndex(a => a.id === assignee.id);
+      Vue.set(state, i, assignee);
     }
   }
 };

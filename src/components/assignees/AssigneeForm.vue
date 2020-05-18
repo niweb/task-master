@@ -23,6 +23,7 @@ import { modules } from "@/store";
 import { isAssignee, isPartialAssignee } from "@/store/assignees/schema";
 
 const defaultValues = {
+  id: null,
   name: ""
 };
 

@@ -1,8 +1,10 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import { add, getAll, edit, set } from "@/store/assignees/types";
+import { add, getAll, edit, set, remove } from "@/store/assignees/types";
 import { generateNewId } from "@/utils";
+import { modules } from "@/store";
+import { removeByAssignee } from "@/store/tasks/types";
 
 Vue.use(Vuex);
 
@@ -24,6 +26,11 @@ export default {
     [edit]: (state, assignee) => {
       const i = state.findIndex(a => a.id === assignee.id);
       Vue.set(state, i, assignee);
+    },
+    [remove](state, assigneeId) {
+      const i = state.findIndex(a => a.id === assigneeId);
+      this.commit(`${modules.tasks}/${removeByAssignee}`, assigneeId);
+      Vue.delete(state, i);
     }
   }
 };

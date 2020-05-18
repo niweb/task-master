@@ -6,3 +6,4 @@ export const getByAssignee = "GET_BY_ASSIGNEE";
 export const add = "ADD";
 export const edit = "EDIT";
 export const remove = "REMOVE";
+export const removeByAssignee = "REMOVE_BY_ASSIGNEE";

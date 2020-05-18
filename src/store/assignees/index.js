@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import { add, getAll } from "@/store/tasks/types";
+import { add, getAll, edit } from "@/store/assignees/types";
 import { generateNewId } from "@/utils";
 
 Vue.use(Vuex);
@@ -11,20 +11,19 @@ export default {
   state: {
     0: {
       id: 0,
-      name: "Unassigned"
-    },
-    1: {
-      id: 1,
-      name: "Nina"
+      name: "Default"
     }
   },
   getters: {
     [getAll]: state => Object.values(state)
   },
   mutations: {
-    [add]: (state, task) => {
-      task.id = generateNewId(Object.keys(state));
-      Vue.set(state, task.id, task);
+    [add]: (state, assignee) => {
+      assignee.id = generateNewId(Object.keys(state));
+      Vue.set(state, assignee.id, assignee);
+    },
+    [edit]: (state, assignee) => {
+      Vue.set(state, assignee.id, assignee);
     }
   }
 };

@@ -46,7 +46,7 @@ import VueDraggableResizable from "vue-draggable-resizable";
 import { mapMutations } from "vuex";
 import moment from "moment";
 
-import TaskForm from "@/components/task-form/TaskForm";
+import TaskForm from "@/components/tasks/TaskForm";
 import { isTask } from "@/store/tasks/schema";
 import { modules } from "@/store";
 import { edit, remove } from "@/store/tasks/types";

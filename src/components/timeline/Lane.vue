@@ -5,9 +5,7 @@
     @mousedown.self="onMouseDown"
     @mouseup="onMouseUp"
   >
-    <div class="name">
-      {{ assignee.name }}
-    </div>
+    <NameTag class="name" :assignee="assignee"></NameTag>
     <template v-for="(taskLane, index) in sortedTasks">
       <Task
         v-for="task in taskLane"
@@ -31,14 +29,16 @@ import { mapGetters } from "vuex";
 import { modules } from "@/store";
 import { getByAssignee } from "@/store/tasks/types";
 import Task from "@/components/timeline/Task";
-import TaskForm from "@/components/task-form/TaskForm";
+import TaskForm from "@/components/tasks/TaskForm";
 import { isAssignee } from "@/store/assignees/schema";
+import NameTag from "@/components/assignees/NameTag";
 
 export default {
   name: "Lane",
   components: {
     Task,
-    TaskForm
+    TaskForm,
+    NameTag
   },
   props: {
     dates: {
@@ -163,11 +163,6 @@ export default {
     position: absolute;
     left: calc(var(--offset-x) + 10px);
     z-index: 1;
-    margin-top: -15px;
-    background-color: white;
-    padding: 2px 15px;
-    border-radius: 5px;
-    border: 2px solid rgba(0, 0, 0, 0.4);
   }
 
   .task {

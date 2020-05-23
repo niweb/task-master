@@ -58,7 +58,7 @@ export default {
       this.$emit("submit");
     },
     resetForm() {
-      this.values = defaultValues;
+      this.values = { ...defaultValues };
     }
   },
   data: function() {

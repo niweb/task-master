@@ -159,6 +159,8 @@ export default {
   &__title {
     flex-shrink: 1;
     margin-right: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__handle {

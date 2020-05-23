@@ -16,7 +16,7 @@
         </template>
         <span>Export</span>
       </v-tooltip>
-      <v-btn text class="mx-1" to="/timeline">Timeline</v-btn>
+      <v-btn text class="mx-1" :to="paths.timeline">Timeline</v-btn>
     </v-app-bar>
 
     <v-content>
@@ -27,7 +27,15 @@
 
 <script>
 import exportAppState from "@/mixins/export";
+import paths from "@/router/paths";
+
 export default {
-  mixins: [exportAppState]
+  mixins: [exportAppState],
+
+  data() {
+    return {
+      paths
+    };
+  }
 };
 </script>

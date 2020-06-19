@@ -5,9 +5,7 @@
     @mousedown.self="onMouseDown"
     @mouseup="onMouseUp"
   >
-    <div class="name">
-      {{ assignee.name }}
-    </div>
+    <slot />
     <template v-for="(taskLane, index) in sortedTasks">
       <Task
         v-for="task in taskLane"
@@ -20,7 +18,7 @@
       ></Task>
     </template>
     <v-dialog v-model="dialog" max-width="400">
-      <TaskForm :task="newTask" @submit="dialog = false"></TaskForm>
+      <TaskForm :task="newTask" @submit="dialog = false" />
     </v-dialog>
   </div>
 </template>
@@ -31,7 +29,7 @@ import { mapGetters } from "vuex";
 import { modules } from "@/store";
 import { getByAssignee } from "@/store/tasks/types";
 import Task from "@/components/timeline/Task";
-import TaskForm from "@/components/task-form/TaskForm";
+import TaskForm from "@/components/tasks/TaskForm";
 import { isAssignee } from "@/store/assignees/schema";
 
 export default {
@@ -54,10 +52,6 @@ export default {
       type: Number,
       default: 50,
       required: false
-    },
-    scrollOffsetX: {
-      type: Number,
-      required: true
     }
   },
   data() {
@@ -135,7 +129,6 @@ export default {
       return {
         "--number-of-columns": this.dates.length,
         "--column-width": `${this.columnWidth}px`,
-        "--offset-x": `${this.scrollOffsetX}px`,
         "--task-lanes": this.sortedTasks.length,
         "--task-height": `${this.taskHeight}px`
       };
@@ -158,17 +151,6 @@ export default {
   background: rgba(0, 0, 0, 0.1);
   border-top: 2px solid rgba(0, 0, 0, 0.4);
   cursor: crosshair;
-
-  .name {
-    position: absolute;
-    left: calc(var(--offset-x) + 10px);
-    z-index: 1;
-    margin-top: -15px;
-    background-color: white;
-    padding: 2px 15px;
-    border-radius: 5px;
-    border: 2px solid rgba(0, 0, 0, 0.4);
-  }
 
   .task {
     position: absolute;

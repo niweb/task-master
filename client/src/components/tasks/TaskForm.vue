@@ -40,12 +40,13 @@
 import moment from "moment";
 import { mapGetters, mapMutations } from "vuex";
 import { add, edit } from "@/store/tasks/types";
-import DatePicker from "@/components/task-form/DatePicker";
+import DatePicker from "@/components/tasks/DatePicker";
 import { getAll } from "@/store/assignees/types";
 import { modules } from "@/store";
 import { isPartialTask, isTask } from "@/store/tasks/schema";
 
 const defaultValues = {
+  id: null,
   title: "",
   assignee: 0,
   start: moment(),

@@ -2,7 +2,14 @@ import Vue from "vue";
 import Vuex from "vuex";
 import moment from "moment";
 
-import { add, edit, getAll, getByAssignee } from "@/store/tasks/types";
+import {
+  add,
+  edit,
+  getAll,
+  getByAssignee,
+  remove,
+  removeByAssignee
+} from "@/store/tasks/types";
 import { generateNewId } from "@/utils";
 
 Vue.use(Vuex);
@@ -19,13 +26,16 @@ const parse = task => ({
   end: moment(task.end)
 });
 
+const selectAll = state => Object.values(state).map(parse);
+const selectByAssignee = state => assigneeId =>
+  selectAll(state).filter(task => task.assignee === assigneeId);
+
 export default {
   namespaced: true,
   state: {},
   getters: {
-    [getAll]: state => Object.values(state).map(parse),
-    [getByAssignee]: (state, getters) => assigneeId =>
-      getters[getAll].filter(task => task.assignee === assigneeId)
+    [getAll]: selectAll,
+    [getByAssignee]: selectByAssignee
   },
   mutations: {
     [add]: (state, task) => {
@@ -34,6 +44,13 @@ export default {
     },
     [edit]: (state, task) => {
       Vue.set(state, task.id, stringify(task));
+    },
+    [remove]: (state, taskId) => {
+      Vue.delete(state, taskId);
+    },
+    [removeByAssignee]: (state, assigneeId) => {
+      const tasks = selectByAssignee(state)(assigneeId);
+      tasks.forEach(task => Vue.delete(state, task.id));
     }
   }
 };

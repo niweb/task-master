@@ -1,4 +1,4 @@
-import { isType, validateSchema } from "@/utils";
+import { isType, validatePartialSchema, validateSchema } from "@/utils";
 
 export const assignee = {
   id: isType("number"),
@@ -6,3 +6,5 @@ export const assignee = {
 };
 
 export const isAssignee = obj => validateSchema(obj, assignee);
+export const isPartialAssignee = object =>
+  validatePartialSchema(object, assignee);

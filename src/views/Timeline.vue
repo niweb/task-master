@@ -2,6 +2,7 @@
   <div class="timeline">
     <div class="actions">
       <AddAssigneeButton />
+      <ProjectButtons />
     </div>
     <Calendar />
   </div>
@@ -10,12 +11,14 @@
 <script>
 import Calendar from "@/components/timeline/Calendar";
 import AddAssigneeButton from "@/components/assignees/AddAssigneeButton";
+import ProjectButtons from "@/components/projects/ProjectButtons";
 
 export default {
   name: "Timeline",
   components: {
     AddAssigneeButton,
-    Calendar
+    Calendar,
+    ProjectButtons
   }
 };
 </script>
@@ -31,6 +34,7 @@ export default {
   display: flex;
   padding: 20px;
   flex-direction: row;
+  justify-content: space-between;
   align-items: flex-start;
 }
 </style>

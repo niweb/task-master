@@ -21,7 +21,7 @@
       <v-btn
         x-small
         icon
-        color="white"
+        :color="this.contrastColor"
         class="task__edit-btn"
         @click.stop="dialog = true"
       >
@@ -30,7 +30,7 @@
       <v-btn
         x-small
         icon
-        color="white"
+        :color="this.contrastColor"
         class="task__delete-btn"
         @click="deleteTask(task.id)"
       >
@@ -45,13 +45,15 @@
 
 <script>
 import VueDraggableResizable from "vue-draggable-resizable";
-import { mapMutations } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 
 import TaskForm from "@/components/tasks/TaskForm";
 import { isTask } from "@/store/tasks/schema";
 import { modules } from "@/store";
 import { edit, remove } from "@/store/tasks/types";
+import { getContrastColor } from "@/utils";
+import { getById } from "@/store/projects/types";
 
 export default {
   name: "Task",
@@ -92,6 +94,18 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(modules.projects, {
+      getProject: getById
+    }),
+    project() {
+      return this.getProject(this.task.project);
+    },
+    color() {
+      return this.project ? this.project.color : "#5f5f5f";
+    },
+    contrastColor() {
+      return getContrastColor(this.color);
+    },
     left() {
       return this.getSpaceBetween(this.firstDayInCalendar, this.task.start);
     },
@@ -101,7 +115,11 @@ export default {
       );
     },
     cssVars() {
-      return { "--drag-cursor": this.dragging ? "grabbing" : "grab" };
+      return {
+        "--drag-cursor": this.dragging ? "grabbing" : "grab",
+        "--color": this.color,
+        "--contrast-color": this.contrastColor
+      };
     }
   },
   methods: {
@@ -137,8 +155,8 @@ export default {
 
 <style lang="scss">
 .task {
-  background-color: #2c3e50;
-  color: #fff;
+  background-color: var(--color);
+  color: var(--contrast-color);
   border-radius: 5px;
   cursor: pointer;
   display: flex;
@@ -166,7 +184,8 @@ export default {
   &__handle {
     display: block !important;
     flex-shrink: 0;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--contrast-color);
+    opacity: 0.3;
     height: 100%;
     width: 5px;
 

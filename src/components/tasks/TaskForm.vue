@@ -77,7 +77,7 @@ export default {
   },
   created() {
     // hacky way to insert computed value into initial values stored in data
-    this.values.project = this.selectedProject;
+    this.values.project = this.task?.project || this.selectedProject;
   },
   methods: {
     ...mapMutations(modules.tasks, { addTask: add, editTask: edit }),

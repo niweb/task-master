@@ -12,13 +12,15 @@ import {
   getById
 } from "@/store/projects/types";
 import { generateNewId } from "@/utils";
+import { modules } from "@/store";
+import { removeByProject } from "@/store/tasks/types";
 
 Vue.use(Vuex);
 
 export default {
   namespaced: true,
   state: {
-    selected: null,
+    selected: 0,
     items: [{ id: 0, name: "Default", color: "#2c3e50" }]
   },
   getters: {
@@ -40,11 +42,11 @@ export default {
       Vue.set(state.items, i, project);
     },
     [remove](state, projectId) {
-      //TODO: What about tasks in this project? Delete or move to another?
       const i = state.items.findIndex(a => a.id === projectId);
+      this.commit(`${modules.tasks}/${removeByProject}`, projectId);
       Vue.delete(state.items, i);
       if ((state.selected = projectId)) {
-        state.selected = null;
+        state.selected = state.items[0]?.id;
       }
     },
     [select](state, projectId) {

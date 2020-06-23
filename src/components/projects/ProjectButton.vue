@@ -13,15 +13,39 @@
         icon
         class="ml-3"
         :color="getTextColor"
-        @click.stop="dialog = true"
+        @click.stop="editDialog = true"
       >
         <v-icon>mdi-pencil</v-icon>
-        <v-dialog v-model="dialog" max-width="400">
-          <ProjectForm :project="project" @submit="dialog = false" />
+        <v-dialog v-model="editDialog" max-width="400">
+          <ProjectForm :project="project" @submit="editDialog = false" />
         </v-dialog>
       </v-btn>
-      <v-btn x-small icon :color="getTextColor" @click="remove(project.id)">
+
+      <v-btn
+        x-small
+        icon
+        :color="getTextColor"
+        @click.stop="deleteDialog = true"
+      >
         <v-icon>mdi-trash-can</v-icon>
+        <v-dialog v-model="deleteDialog" max-width="400">
+          <v-card>
+            <v-card-title class="headline">Are you sure?</v-card-title>
+            <v-card-text>
+              All tasks associated to {{ project.name }} will be permanently
+              deleted.
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text color="danger" @click="remove(project.id)">
+                Yes, delete
+              </v-btn>
+              <v-btn text color="primary" @click="deleteDialog = false">
+                No, keep
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-btn>
     </template>
   </v-btn>
@@ -62,7 +86,8 @@ export default {
   },
   data() {
     return {
-      dialog: false
+      editDialog: false,
+      deleteDialog: false
     };
   }
 };

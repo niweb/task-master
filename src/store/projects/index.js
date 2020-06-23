@@ -32,7 +32,7 @@ export default {
       state.items.push(...list);
     },
     [add]: (state, project) => {
-      project.id = generateNewId(Object.keys(state.items));
+      project.id = generateNewId(state.items.map(p => p.id));
       state.items.push(project);
     },
     [edit]: (state, project) => {

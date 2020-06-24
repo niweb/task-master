@@ -20,7 +20,7 @@ export default {
       state.push(...list);
     },
     [add]: (state, assignee) => {
-      assignee.id = generateNewId(Object.keys(state));
+      assignee.id = generateNewId(state.map(p => p.id));
       state.push(assignee);
     },
     [edit]: (state, assignee) => {

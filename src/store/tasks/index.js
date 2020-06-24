@@ -8,7 +8,8 @@ import {
   getAll,
   getByAssignee,
   remove,
-  removeByAssignee
+  removeByAssignee,
+  removeByProject
 } from "@/store/tasks/types";
 import { generateNewId } from "@/utils";
 
@@ -29,6 +30,8 @@ const parse = task => ({
 const selectAll = state => Object.values(state).map(parse);
 const selectByAssignee = state => assigneeId =>
   selectAll(state).filter(task => task.assignee === assigneeId);
+const selectByProject = state => projectId =>
+  selectAll(state).filter(task => task.project === projectId);
 
 export default {
   namespaced: true,
@@ -50,6 +53,10 @@ export default {
     },
     [removeByAssignee]: (state, assigneeId) => {
       const tasks = selectByAssignee(state)(assigneeId);
+      tasks.forEach(task => Vue.delete(state, task.id));
+    },
+    [removeByProject]: (state, assigneeId) => {
+      const tasks = selectByProject(state)(assigneeId);
       tasks.forEach(task => Vue.delete(state, task.id));
     }
   }

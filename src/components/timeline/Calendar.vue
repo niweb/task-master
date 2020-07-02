@@ -27,8 +27,16 @@
         :style="`--index: ${index};`"
         :key="day.format()"
         :date="day"
+        :minimal="columnWidth <= 40"
       ></Day>
     </div>
+    <ZoomControls
+      class="zoom-controls"
+      @zoom="onZoom"
+      :can-zoom-in="columnWidth < 200"
+      :can-zoom-out="columnWidth > 30"
+    >
+    </ZoomControls>
   </div>
 </template>
 
@@ -42,6 +50,7 @@ import Lane from "@/components/timeline/Lane";
 import { getAll, set } from "@/store/assignees/types";
 import { modules } from "@/store";
 import NameTag from "@/components/assignees/NameTag";
+import ZoomControls from "@/components/timeline/ZoomControls";
 
 const moment = extendMoment(Moment);
 
@@ -51,7 +60,8 @@ export default {
     Day,
     Lane,
     Draggable,
-    NameTag
+    NameTag,
+    ZoomControls
   },
   computed: {
     assignees: {
@@ -101,6 +111,12 @@ export default {
       const newDays = Array.from(range).map(d => d.startOf("d"));
       this.days = [...newDays, ...this.days];
       this.$el.scrollTo(newDays.length * this.columnWidth, 0);
+    },
+    onZoom(level) {
+      const daysOutsideViewport = this.offsetX / this.columnWidth;
+      const zoomFactor = (this.columnWidth ^ 2) / 2;
+      this.columnWidth += level * zoomFactor;
+      this.$el.scrollTo(daysOutsideViewport * this.columnWidth, 0);
     }
   },
   mounted() {
@@ -115,7 +131,7 @@ export default {
       .by("day");
     return {
       days: Array.from(range).map(d => d.startOf("d")),
-      columnWidth: 50,
+      columnWidth: 40,
       offsetX: 0,
       dragging: false
     };
@@ -128,6 +144,12 @@ export default {
   width: 100%;
   height: 100%;
   overflow: auto;
+}
+
+.zoom-controls {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
 }
 
 .calendar {

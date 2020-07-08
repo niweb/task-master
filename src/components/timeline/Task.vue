@@ -2,7 +2,7 @@
   <VueDraggableResizable
     :prevent-deactivation="true"
     :handles="['mr', 'ml']"
-    :axis="'x'"
+    :axis="'both'"
     :grid="[pixelsPerDay, height]"
     :x="left"
     :y="top"
@@ -136,6 +136,8 @@ export default {
     onDrag(x) {
       this.updateTask(x, this.width);
       this.dragging = false;
+
+      this.$emit("dragstop");
     },
     onDragStart() {
       this.dragging = true;

@@ -15,6 +15,7 @@
         :height="taskHeight"
         :first-day-in-calendar="dates[0]"
         :pixels-per-day="columnWidth"
+        @dragstop="foo(task)"
       ></Task>
     </template>
     <v-dialog v-model="dialog" max-width="400">
@@ -63,6 +64,10 @@ export default {
     };
   },
   methods: {
+    foo(task) {
+      console.log("dragstop", task);
+    },
+
     onMouseDown(e) {
       const startDay = this.getDayByOffset(e.offsetX);
       this.newTaskDates = [startDay, startDay];

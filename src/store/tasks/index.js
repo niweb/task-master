@@ -4,12 +4,14 @@ import moment from "moment";
 
 import {
   add,
+  addLink,
   edit,
   getAll,
   getByAssignee,
   remove,
   removeByAssignee,
-  removeByProject
+  removeByProject,
+  removeLink
 } from "@/store/tasks/types";
 import { generateNewId } from "@/utils";
 
@@ -28,6 +30,7 @@ const parse = task => ({
 });
 
 const selectAll = state => Object.values(state).map(parse);
+// const selectOne = state => taskId => selectAll(state)[taskId];
 const selectByAssignee = state => assigneeId =>
   selectAll(state).filter(task => task.assignee === assigneeId);
 const selectByProject = state => projectId =>
@@ -43,10 +46,22 @@ export default {
   mutations: {
     [add]: (state, task) => {
       task.id = generateNewId(Object.keys(state));
+      task.links = [];
       Vue.set(state, task.id, stringify(task));
     },
     [edit]: (state, task) => {
       Vue.set(state, task.id, stringify(task));
+    },
+    [addLink]: (state, { from, to }) => {
+      const fromTask = state[from];
+      const toIsValid = to !== null && to !== undefined;
+      if (fromTask && toIsValid && !fromTask.links.includes(to)) {
+        fromTask.links.push(to);
+      }
+    },
+    [removeLink]: (state, { from, to }) => {
+      //TODO
+      console.log("remove", from, to);
     },
     [remove]: (state, taskId) => {
       Vue.delete(state, taskId);

@@ -12,12 +12,27 @@
     @resizestop="onResize"
     @dragstop="onDrag"
     :onDragStart="onDragStart"
-    class-name-handle="task__handle"
+    class-name-handle="task__resize-handle"
+    drag-handle=".task__drag-area"
     class="task"
     :style="cssVars"
   >
     <div class="task__content">
-      <span class="task__title">{{ task.title }}</span>
+      <v-btn
+        v-if="linkingTask !== null && linkingTask !== task.id"
+        x-small
+        icon
+        :color="this.contrastColor"
+        class="task__link-btn mr-1"
+        @click="linkEnd"
+      >
+        <v-icon>mdi-link-plus</v-icon>
+      </v-btn>
+
+      <div class="task__drag-area">
+        <span class="task__title">{{ task.title }}</span>
+      </div>
+
       <v-btn
         x-small
         icon
@@ -36,6 +51,27 @@
       >
         <v-icon>mdi-trash-can</v-icon>
       </v-btn>
+
+      <v-btn
+        v-if="linkingTask === null"
+        x-small
+        icon
+        :color="this.contrastColor"
+        class="task__link-start-btn"
+        @click="linkStart"
+      >
+        <v-icon>mdi-link</v-icon>
+      </v-btn>
+      <v-btn
+        v-else-if="linkingTask === task.id"
+        x-small
+        icon
+        :color="this.contrastColor"
+        class="task__link-cancel-btn"
+        @click="linkEnd"
+      >
+        <v-icon>mdi-link-off</v-icon>
+      </v-btn>
     </div>
     <v-dialog v-model="dialog" max-width="400">
       <TaskForm :task="task" @submit="dialog = false"></TaskForm>
@@ -51,9 +87,10 @@ import moment from "moment";
 import TaskForm from "@/components/tasks/TaskForm";
 import { isTask } from "@/store/tasks/schema";
 import { modules } from "@/store";
-import { edit, remove } from "@/store/tasks/types";
+import { addLink, edit, remove } from "@/store/tasks/types";
 import { getContrastColor } from "@/utils";
 import { getById } from "@/store/projects/types";
+import { getLinkingTask, setLinkingTask } from "@/store/ui/types";
 
 export default {
   name: "Task",
@@ -94,9 +131,8 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(modules.projects, {
-      getProject: getById
-    }),
+    ...mapGetters(modules.projects, { getProject: getById }),
+    ...mapGetters(modules.ui, { linkingTask: getLinkingTask }),
     project() {
       return this.getProject(this.task.project);
     },
@@ -123,7 +159,12 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(modules.tasks, { editTask: edit, deleteTask: remove }),
+    ...mapMutations(modules.tasks, {
+      editTask: edit,
+      deleteTask: remove,
+      addLink: addLink
+    }),
+    ...mapMutations(modules.ui, { setLinkingTask: setLinkingTask }),
     getSpaceBetween(start, end) {
       return end.diff(start, "d") * this.pixelsPerDay;
     },
@@ -148,6 +189,13 @@ export default {
           .endOf("d");
         this.editTask({ ...this.task, start, end });
       }
+    },
+    linkStart() {
+      this.setLinkingTask(this.task.id);
+    },
+    linkEnd() {
+      this.addLink({ from: this.linkingTask, to: this.task.id });
+      this.setLinkingTask(null);
     }
   }
 };
@@ -162,7 +210,6 @@ export default {
   display: flex;
 
   &__content {
-    cursor: var(--drag-cursor);
     flex: 1 1 auto;
     padding: 2px 5px;
     overflow: hidden;
@@ -174,14 +221,18 @@ export default {
     align-items: center;
   }
 
-  &__title {
-    flex-shrink: 1;
-    margin-right: auto;
+  &__drag-area {
+    cursor: var(--drag-cursor);
+    flex: 1 1 auto;
     overflow: hidden;
+  }
+
+  &__title {
+    margin-right: auto;
     text-overflow: ellipsis;
   }
 
-  &__handle {
+  &__resize-handle {
     display: block !important;
     flex-shrink: 0;
     background-color: var(--contrast-color);

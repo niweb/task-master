@@ -4,6 +4,7 @@
     :style="laneCssVars"
     @mousedown.self="onMouseDown"
     @mouseup="onMouseUp"
+    @mouseover="onMouseOver"
   >
     <slot />
     <template v-for="(taskLane, index) in sortedTasks">
@@ -63,12 +64,20 @@ export default {
     };
   },
   methods: {
+    onMouseOver() {
+      console.log("onMouseOver " + this.assignee.id);
+      sessionStorage.setItem("assigneeID", this.assignee.id);
+    },
+
     onMouseDown(e) {
+      console.log("onMouseDown ");
       const startDay = this.getDayByOffset(e.offsetX);
       this.newTaskDates = [startDay, startDay];
     },
 
     onMouseUp(e) {
+      console.log("onMouseUp ");
+      console.log("======================= ");
       this.newTaskDates[1] = this.getDayByOffset(e.offsetX);
       if (!this.newTaskDates.includes(null)) {
         this.createNewTask();

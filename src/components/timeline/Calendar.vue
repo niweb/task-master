@@ -1,26 +1,9 @@
 <template>
   <div class="scroll-wrapper" @scroll="onScroll">
     <div class="calendar" :style="cssVars">
-      <Draggable
-        v-model="assignees"
-        @start="dragging = true"
-        @end="dragging = false"
-        class="drag-wrapper"
-        handle=".lane__name-tag"
-      >
-        <Lane
-          v-for="(assignee, index) in assignees"
-          class="lane"
-          :style="`--index: ${index};`"
-          :key="assignee.id"
-          :assignee="assignee"
-          :dates="days"
-          :column-width="columnWidth"
-          :scroll-offset-x="offsetX"
-        >
-          <NameTag class="lane__name-tag" :assignee="assignee"></NameTag>
-        </Lane>
-      </Draggable>
+      <div class="content">
+        <slot :scrollOffsetX="offsetX" :dates="days"></slot>
+      </div>
       <Day
         v-for="(day, index) in days"
         class="day"
@@ -35,38 +18,20 @@
 <script>
 import Moment from "moment";
 import { extendMoment } from "moment-range";
-import Draggable from "vuedraggable";
-
 import Day from "@/components/timeline/Day";
-import Lane from "@/components/timeline/Lane";
-import { getAll, set } from "@/store/assignees/types";
-import { modules } from "@/store";
-import NameTag from "@/components/assignees/NameTag";
 
 const moment = extendMoment(Moment);
 
 export default {
   name: "Calendar",
   components: {
-    Day,
-    Lane,
-    Draggable,
-    NameTag
+    Day
   },
   computed: {
-    assignees: {
-      get() {
-        return this.$store.getters[`${modules.assignees}/${getAll}`];
-      },
-      set(value) {
-        this.$store.commit(`${modules.assignees}/${set}`, value);
-      }
-    },
     cssVars() {
       return {
         "--columns": this.days.length,
         "--column-width": `${this.columnWidth}px`,
-        "--lanes": this.assignees.length,
         "--offset-x": `${this.offsetX}px`
       };
     }
@@ -131,33 +96,21 @@ export default {
 }
 
 .calendar {
-  --rows: calc(var(--lanes) + 2);
   height: 100%;
   display: grid;
   grid-template-columns: repeat(var(--columns), var(--column-width));
-  grid-template-rows: [header] 60px [lanes] repeat(var(--lanes), auto) [remaining-space] 1fr;
+  grid-template-rows: [header] 60px [content] auto [remaining-space] 1fr;
 }
 
 .day {
-  grid-row: 1 / span var(--rows);
+  grid-row: 1 / span 3;
   grid-column: calc(var(--index) + 1); // grid starts with 1
 }
 
-.drag-wrapper {
-  display: contents;
-}
-
-.lane {
+.content {
   z-index: 1;
   margin: 20px 0;
   grid-column: 1 / span var(--columns);
-  grid-row: calc(var(--index) + 2); // grid starts with 1 + exclude header row
-
-  &__name-tag {
-    position: absolute;
-    left: calc(var(--offset-x) + 10px);
-    z-index: 1;
-    cursor: grab;
-  }
+  grid-row: 2;
 }
 </style>

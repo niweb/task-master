@@ -5,18 +5,11 @@
     @mousedown.self="onMouseDown"
     @mouseup="onMouseUp"
   >
-    <slot />
-    <template v-for="(taskLane, index) in sortedTasks">
-      <Task
-        v-for="task in taskLane"
-        :key="task.id"
-        :task="task"
-        :top="index * taskHeight"
-        :height="taskHeight"
-        :first-day-in-calendar="dates[0]"
-        :pixels-per-day="columnWidth"
-      ></Task>
-    </template>
+    <NameTag
+      :class="`lane__name-tag ${this.dragHandleClass}`"
+      :assignee="assignee"
+    ></NameTag>
+    <slot></slot>
     <v-dialog v-model="dialog" max-width="400">
       <TaskForm :task="newTask" @submit="dialog = false" />
     </v-dialog>
@@ -25,18 +18,15 @@
 
 <script>
 import moment from "moment";
-import { mapGetters } from "vuex";
-import { modules } from "@/store";
-import { getByAssignee } from "@/store/tasks/types";
-import Task from "@/components/timeline/Task";
 import TaskForm from "@/components/tasks/TaskForm";
 import { isAssignee } from "@/store/assignees/schema";
+import NameTag from "@/components/assignees/NameTag";
 
 export default {
   name: "Lane",
   components: {
-    Task,
-    TaskForm
+    TaskForm,
+    NameTag
   },
   props: {
     dates: {
@@ -52,14 +42,28 @@ export default {
       type: Number,
       default: 50,
       required: false
+    },
+    scrollOffsetX: {
+      type: Number,
+      default: 0,
+      required: false
+    },
+    height: {
+      type: Number,
+      default: 50,
+      required: false
+    },
+    dragHandleClass: {
+      type: String,
+      default: "",
+      required: false
     }
   },
   data() {
     return {
       newTaskDates: [null, null],
       newTask: {},
-      dialog: false,
-      taskHeight: 30
+      dialog: false
     };
   },
   methods: {
@@ -99,38 +103,11 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(modules.tasks, { tasksByAssignee: getByAssignee }),
-    sortedTasks() {
-      const tasks = this.tasksByAssignee(this.assignee.id) || [];
-      let lanes = [];
-      tasks
-        .slice()
-        .sort((a, b) => a.start.diff(b.start))
-        .forEach(task => {
-          let sorted = false;
-          let i = 0;
-          while (!sorted) {
-            if (lanes[i] == null) {
-              lanes[i] = [task];
-              sorted = true;
-            } else if (
-              lanes[i].every(sortedTask => !this.tasksOverlap(sortedTask, task))
-            ) {
-              lanes[i].push(task);
-              sorted = true;
-            } else {
-              i++;
-            }
-          }
-        });
-      return lanes;
-    },
     laneCssVars() {
       return {
         "--number-of-columns": this.dates.length,
-        "--column-width": `${this.columnWidth}px`,
-        "--task-lanes": this.sortedTasks.length,
-        "--task-height": `${this.taskHeight}px`
+        "--height": `${this.height}px`,
+        "--scroll-offset-x": `${this.scrollOffsetX}px`
       };
     }
   }
@@ -146,15 +123,17 @@ export default {
   position: relative;
   width: 100%;
   min-height: 50px;
-  height: calc(var(--task-lanes) * var(--task-height) + var(--padding-y));
+  height: calc(var(--height) + var(--padding-y));
   padding: var(--padding-top) 0 var(--padding-bottom) 0;
   background: rgba(0, 0, 0, 0.1);
   border-top: 2px solid rgba(0, 0, 0, 0.4);
   cursor: crosshair;
 
-  .task {
+  &__name-tag {
     position: absolute;
-    margin: 2px 0;
+    left: calc(var(--scroll-offset-x) + 10px);
+    z-index: 1;
+    cursor: grab;
   }
 }
 </style>

@@ -16,6 +16,7 @@
     drag-handle=".task__drag-area"
     class="task"
     :style="cssVars"
+    :data-id="task.id"
   >
     <div class="task__content">
       <v-btn

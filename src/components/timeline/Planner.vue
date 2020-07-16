@@ -1,28 +1,31 @@
 <template>
-  <Draggable v-model="assignees" handle=".lane__drag-handle">
-    <Lane
-      v-for="assignee in assignees"
-      class="lane"
-      drag-handle-class="lane__drag-handle"
-      :key="assignee.id"
-      :assignee="assignee"
-      :dates="dates"
-      :scroll-offset-x="scrollOffsetX"
-      :height="laneHeight[assignee.id]"
-    >
-      <template v-for="(taskLane, index) in sortedTasks[assignee.id]">
-        <Task
-          v-for="task in taskLane"
-          :key="task.id"
-          :task="task"
-          :top="index * taskHeight"
-          :height="taskHeight"
-          :first-day-in-calendar="dates[0]"
-          :pixels-per-day="columnWidth"
-        ></Task>
-      </template>
-    </Lane>
-  </Draggable>
+  <div class="planner">
+    <Draggable v-model="assignees" handle=".lane__drag-handle">
+      <Lane
+        v-for="assignee in assignees"
+        class="lane"
+        drag-handle-class="lane__drag-handle"
+        :key="assignee.id"
+        :assignee="assignee"
+        :dates="dates"
+        :scroll-offset-x="scrollOffsetX"
+        :height="laneHeight[assignee.id]"
+      >
+        <template v-for="(taskLane, index) in sortedTasks[assignee.id]">
+          <Task
+            v-for="task in taskLane"
+            :key="task.id"
+            :task="task"
+            :top="index * taskHeight"
+            :height="taskHeight"
+            :first-day-in-calendar="dates[0]"
+            :pixels-per-day="columnWidth"
+          ></Task>
+        </template>
+      </Lane>
+      <Links class="links"></Links>
+    </Draggable>
+  </div>
 </template>
 
 <script>
@@ -34,6 +37,7 @@ import Draggable from "vuedraggable";
 
 import Lane from "@/components/timeline/Lane";
 import Task from "@/components/timeline/Task";
+import Links from "@/components/timeline/Links";
 
 import { modules } from "@/store";
 import { getAll, set } from "@/store/assignees/types";
@@ -46,7 +50,8 @@ export default {
   components: {
     Lane,
     Draggable,
-    Task
+    Task,
+    Links
   },
   props: {
     scrollOffsetX: {
@@ -124,11 +129,22 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.planner {
+  position: relative;
+}
+
 .lane {
   margin-bottom: 30px;
 }
 
 .task {
   position: absolute;
+}
+
+.links {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
 </style>

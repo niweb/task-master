@@ -8,6 +8,7 @@ import {
   edit,
   getAll,
   getByAssignee,
+  getLinks,
   remove,
   removeByAssignee,
   removeByProject,
@@ -41,7 +42,20 @@ export default {
   state: {},
   getters: {
     [getAll]: selectAll,
-    [getByAssignee]: selectByAssignee
+    [getByAssignee]: selectByAssignee,
+    [getLinks]: state => {
+      const tasks = selectAll(state);
+      const linkTuples = [];
+      tasks.forEach(task => {
+        task.links.forEach(link => {
+          linkTuples.push({
+            from: task.id,
+            to: link
+          });
+        });
+      });
+      return linkTuples;
+    }
   },
   mutations: {
     [add]: (state, task) => {

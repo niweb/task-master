@@ -5,7 +5,7 @@ import moment from "moment";
 import {
   add,
   addLink,
-  edit,
+  update,
   getAll,
   getByAssignee,
   getLinks,
@@ -14,7 +14,8 @@ import {
   remove,
   removeByAssignee,
   removeByProject,
-  removeLink
+  removeLink,
+  internalUpdateSingle
 } from "@/store/tasks/types";
 import { generateNewId } from "@/utils";
 
@@ -71,7 +72,7 @@ export default {
       task.links = [];
       Vue.set(state, task.id, stringify(task));
     },
-    [edit]: (state, task) => {
+    [internalUpdateSingle]: (state, task) => {
       Vue.set(state, task.id, stringify(task));
     },
     [addLink]: (state, { from, to }) => {
@@ -95,6 +96,55 @@ export default {
     [removeByProject]: (state, assigneeId) => {
       const tasks = selectByProject(state)(assigneeId);
       tasks.forEach(task => Vue.delete(state, task.id));
+    }
+  },
+  actions: {
+    [update]: ({ commit, state, dispatch, getters }, task) => {
+      commit(internalUpdateSingle, task);
+
+      const linksFromThisTask = task.links.map(selectOne(state));
+      linksFromThisTask.forEach(linkedTask => {
+        if (linkedTask.start.isBefore(task.end)) {
+          const daysBetween = linkedTask.end.diff(linkedTask.start, "d");
+          const start = task.end
+            .clone()
+            .add(1, "d")
+            .startOf("d");
+          const end = start
+            .clone()
+            .add(daysBetween, "d")
+            .endOf("d");
+
+          dispatch(update, {
+            ...linkedTask,
+            start,
+            end
+          });
+        }
+      });
+
+      const linksToThisTask = getters[getAll].filter(t =>
+        t.links.includes(task.id)
+      );
+      linksToThisTask.forEach(linkedTask => {
+        if (linkedTask.end.isAfter(task.start)) {
+          const daysBetween = linkedTask.end.diff(linkedTask.start, "d");
+          const end = task.start
+            .clone()
+            .subtract(1, "d")
+            .endOf("d");
+          const start = end
+            .clone()
+            .subtract(daysBetween, "d")
+            .startOf("d");
+
+          dispatch(update, {
+            ...linkedTask,
+            start,
+            end
+          });
+        }
+      });
     }
   }
 };

@@ -94,7 +94,7 @@
 
 <script>
 import VueDraggableResizable from "vue-draggable-resizable";
-import { mapGetters, mapMutations } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 
 import { getContrastColor } from "@/utils";
@@ -104,7 +104,7 @@ import { modules } from "@/store";
 import { isTask } from "@/store/tasks/schema";
 import {
   addLink,
-  edit,
+  update,
   remove,
   getLinksByTask,
   removeLink
@@ -195,10 +195,12 @@ export default {
   },
   methods: {
     ...mapMutations(modules.tasks, {
-      editTask: edit,
       deleteTask: remove,
       addLinkInStore: addLink,
       removeLinkInStore: removeLink
+    }),
+    ...mapActions(modules.tasks, {
+      editTask: update
     }),
     ...mapMutations(modules.ui, { setLinkingTask: setLinkingTask }),
     getSpaceBetween(start, end) {

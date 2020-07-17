@@ -75,13 +75,6 @@ export default {
     [internalUpdateSingle]: (state, task) => {
       Vue.set(state, task.id, stringify(task));
     },
-    [addLink]: (state, { from, to }) => {
-      const fromTask = state[from];
-      const toIsValid = to !== null && to !== undefined;
-      if (fromTask && toIsValid && !fromTask.links.includes(to)) {
-        fromTask.links.push(to);
-      }
-    },
     [removeLink]: (state, { from, to }) => {
       const newLinks = state[from].links.filter(link => link !== to);
       Vue.set(state[from], "links", newLinks);
@@ -145,6 +138,16 @@ export default {
           });
         }
       });
+    },
+    [addLink]: ({ dispatch, getters }, { from, to }) => {
+      const fromTask = getters[getOne](from);
+      const toIsValid = to !== null && to !== undefined;
+      if (fromTask && toIsValid && !fromTask.links.includes(to)) {
+        dispatch(update, {
+          ...fromTask,
+          links: [...fromTask.links, to]
+        });
+      }
     }
   }
 };

@@ -196,10 +196,10 @@ export default {
   methods: {
     ...mapMutations(modules.tasks, {
       deleteTask: remove,
-      addLinkInStore: addLink,
       removeLinkInStore: removeLink
     }),
     ...mapActions(modules.tasks, {
+      addLinkInStore: addLink,
       editTask: update
     }),
     ...mapMutations(modules.ui, { setLinkingTask: setLinkingTask }),

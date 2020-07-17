@@ -19,16 +19,28 @@
     :data-id="task.id"
   >
     <div class="task__content">
-      <v-btn
-        v-if="linkingTask !== null && linkingTask !== task.id"
-        x-small
-        icon
-        :color="this.contrastColor"
-        class="task__link-btn mr-1"
-        @click="linkEnd"
-      >
-        <v-icon>mdi-link-plus</v-icon>
-      </v-btn>
+      <template v-if="isCurrentlyLinking && !isLinkingTask">
+        <v-btn
+          v-if="!isLinkedToLinkingTask"
+          x-small
+          icon
+          :color="this.contrastColor"
+          class="task__link-btn mr-1"
+          @click="addLink"
+        >
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+        <v-btn
+          v-else
+          x-small
+          icon
+          :color="this.contrastColor"
+          class="task__link-btn mr-1"
+          @click="removeLink"
+        >
+          <v-icon>mdi-minus</v-icon>
+        </v-btn>
+      </template>
 
       <div class="task__drag-area">
         <span class="task__title">{{ task.title }}</span>
@@ -54,24 +66,24 @@
       </v-btn>
 
       <v-btn
-        v-if="linkingTask === null"
+        v-if="!isCurrentlyLinking"
         x-small
         icon
         :color="this.contrastColor"
         class="task__link-start-btn"
-        @click="linkStart"
+        @click="startLinking"
       >
-        <v-icon>mdi-link</v-icon>
+        <v-icon>mdi-link-variant</v-icon>
       </v-btn>
       <v-btn
-        v-else-if="linkingTask === task.id"
+        v-else-if="isCurrentlyLinking && isLinkingTask"
         x-small
         icon
         :color="this.contrastColor"
         class="task__link-cancel-btn"
-        @click="linkEnd"
+        @click="endLinking"
       >
-        <v-icon>mdi-link-off</v-icon>
+        <v-icon>mdi-link-variant-off</v-icon>
       </v-btn>
     </div>
     <v-dialog v-model="dialog" max-width="400">
@@ -85,11 +97,18 @@ import VueDraggableResizable from "vue-draggable-resizable";
 import { mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 
-import TaskForm from "@/components/tasks/TaskForm";
-import { isTask } from "@/store/tasks/schema";
-import { modules } from "@/store";
-import { addLink, edit, remove } from "@/store/tasks/types";
 import { getContrastColor } from "@/utils";
+import TaskForm from "@/components/tasks/TaskForm";
+
+import { modules } from "@/store";
+import { isTask } from "@/store/tasks/schema";
+import {
+  addLink,
+  edit,
+  remove,
+  getLinksByTask,
+  removeLink
+} from "@/store/tasks/types";
 import { getById } from "@/store/projects/types";
 import { getLinkingTask, setLinkingTask } from "@/store/ui/types";
 
@@ -132,6 +151,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(modules.tasks, { getLinksByTask: getLinksByTask }),
     ...mapGetters(modules.projects, { getProject: getById }),
     ...mapGetters(modules.ui, { linkingTask: getLinkingTask }),
     project() {
@@ -151,6 +171,20 @@ export default {
         this.getSpaceBetween(this.task.start, this.task.end) + this.pixelsPerDay //fill column for end day
       );
     },
+    isCurrentlyLinking() {
+      return this.linkingTask !== null;
+    },
+    linkingTaskLinks() {
+      return this.isCurrentlyLinking
+        ? this.getLinksByTask(this.linkingTask)
+        : [];
+    },
+    isLinkingTask() {
+      return this.linkingTask === this.task.id;
+    },
+    isLinkedToLinkingTask() {
+      return this.linkingTaskLinks.includes(this.task.id);
+    },
     cssVars() {
       return {
         "--drag-cursor": this.dragging ? "grabbing" : "grab",
@@ -163,7 +197,8 @@ export default {
     ...mapMutations(modules.tasks, {
       editTask: edit,
       deleteTask: remove,
-      addLink: addLink
+      addLinkInStore: addLink,
+      removeLinkInStore: removeLink
     }),
     ...mapMutations(modules.ui, { setLinkingTask: setLinkingTask }),
     getSpaceBetween(start, end) {
@@ -191,11 +226,18 @@ export default {
         this.editTask({ ...this.task, start, end });
       }
     },
-    linkStart() {
+    startLinking() {
       this.setLinkingTask(this.task.id);
     },
-    linkEnd() {
-      this.addLink({ from: this.linkingTask, to: this.task.id });
+    addLink() {
+      this.addLinkInStore({ from: this.linkingTask, to: this.task.id });
+      this.endLinking();
+    },
+    removeLink() {
+      this.removeLinkInStore({ from: this.linkingTask, to: this.task.id });
+      this.endLinking();
+    },
+    endLinking() {
       this.setLinkingTask(null);
     }
   }

@@ -1,7 +1,9 @@
 /** Getters */
+export const getOne = "GET_ONE";
 export const getAll = "GET_ALL";
 export const getByAssignee = "GET_BY_ASSIGNEE";
 export const getLinks = "GET_LINKS";
+export const getLinksByTask = "GET_LINKS_BY_TASK";
 
 /** Mutations */
 export const add = "ADD";

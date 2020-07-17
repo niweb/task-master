@@ -9,6 +9,8 @@ import {
   getAll,
   getByAssignee,
   getLinks,
+  getLinksByTask,
+  getOne,
   remove,
   removeByAssignee,
   removeByProject,
@@ -31,7 +33,8 @@ const parse = task => ({
 });
 
 const selectAll = state => Object.values(state).map(parse);
-// const selectOne = state => taskId => selectAll(state)[taskId];
+const selectOne = state => taskId =>
+  selectAll(state).find(t => t.id === taskId);
 const selectByAssignee = state => assigneeId =>
   selectAll(state).filter(task => task.assignee === assigneeId);
 const selectByProject = state => projectId =>
@@ -43,6 +46,7 @@ export default {
   getters: {
     [getAll]: selectAll,
     [getByAssignee]: selectByAssignee,
+    [getOne]: selectOne,
     [getLinks]: state => {
       const tasks = selectAll(state);
       const linkTuples = [];
@@ -55,6 +59,10 @@ export default {
         });
       });
       return linkTuples;
+    },
+    [getLinksByTask]: (state, getters) => taskId => {
+      const task = getters[getOne](taskId);
+      return task.links;
     }
   },
   mutations: {
@@ -74,8 +82,8 @@ export default {
       }
     },
     [removeLink]: (state, { from, to }) => {
-      //TODO
-      console.log("remove", from, to);
+      const newLinks = state[from].links.filter(link => link !== to);
+      Vue.set(state[from], "links", newLinks);
     },
     [remove]: (state, taskId) => {
       Vue.delete(state, taskId);

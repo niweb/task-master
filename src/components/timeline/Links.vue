@@ -41,13 +41,12 @@ export default {
   data() {
     return {
       parentRect: {},
-      linkRects: [],
       lines: []
     };
   },
   mounted() {
-    this.parentRect = this.$parent.$el.getBoundingClientRect();
-    this.lines = this.calculateLineCoordinates();
+    this.updateParentRect();
+    this.updateLineCoordinates();
   },
   computed: {
     ...mapGetters(modules.tasks, {
@@ -55,6 +54,15 @@ export default {
     })
   },
   methods: {
+    updateParentRect() {
+      this.parentRect = this.$parent.$el.getBoundingClientRect();
+    },
+    updateLineCoordinates() {
+      this.$nextTick(() => {
+        this.updateParentRect();
+        this.lines = this.calculateLineCoordinates();
+      });
+    },
     getTaskElRect(taskId) {
       const taskEl = document.querySelector(`.task[data-id="${taskId}"]`);
       return taskEl.getBoundingClientRect();
@@ -78,7 +86,7 @@ export default {
   },
   watch: {
     links() {
-      this.lines = this.calculateLineCoordinates();
+      this.updateLineCoordinates();
     }
   }
 };

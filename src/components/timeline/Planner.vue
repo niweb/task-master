@@ -23,7 +23,7 @@
           ></Task>
         </template>
       </Lane>
-      <Links class="links"></Links>
+      <Links class="links" :key="linksKey"></Links>
     </Draggable>
   </div>
 </template>
@@ -84,6 +84,18 @@ export default {
         a => (heights[a.id] = this.sortedTasks[a.id].length * this.taskHeight)
       );
       return heights;
+    },
+    linksKey() {
+      /**
+       * Force rerender of the connecting lines whenever underlying DOM nodes are expected to change
+       * - order of assignees changes
+       * - new dates get rendered
+       */
+      const assigneeOrder = this.assignees.reduce(
+        (acc, curr) => `${acc},${curr.id}`,
+        ""
+      );
+      return `${this.dates.length}-${assigneeOrder}`;
     }
   },
   methods: {

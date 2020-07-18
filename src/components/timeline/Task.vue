@@ -134,19 +134,15 @@ export default {
       this.updateTask(x, width);
     },
     onDrag(x) {
-      console.log("onDrag ");
       this.updateTask(x, this.width);
       this.dragging = false;
     },
     onDragStart() {
-      console.log("onDragStart ");
       this.dragging = true;
     },
     updateTask(x, width) {
-      console.log("updateTask ");
       this.task.assignee = Number(sessionStorage.getItem("assigneeID")); //neue AssigneeId wird dem Task zugeordnet
       this.editTask(this.task);
-      sessionStorage.clear();
       if (x !== this.left || width !== this.width) {
         const start = this.getDayAfter(this.firstDayInCalendar, x).startOf("d");
         const end = this.getDayAfter(start, width)

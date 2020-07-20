@@ -2,7 +2,11 @@
   <div class="scroll-wrapper" @scroll="onScroll">
     <div class="calendar" :style="cssVars">
       <div class="content">
-        <slot :scrollOffsetX="offsetX" :dates="days"></slot>
+        <slot
+          :scrollOffsetX="offsetX"
+          :dates="days"
+          :zoomLevel="columnWidth"
+        ></slot>
       </div>
       <Day
         v-for="(day, index) in days"

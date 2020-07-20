@@ -55,7 +55,7 @@ import AssigneeForm from "@/components/assignees/AssigneeForm";
 import { isAssignee } from "@/store/assignees/schema";
 import { modules } from "@/store";
 import { remove } from "@/store/assignees/types";
-import { mapMutations } from "vuex";
+import { mapActions } from "vuex";
 
 export default {
   name: "NameTag",
@@ -70,7 +70,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(modules.assignees, {
+    ...mapActions(modules.assignees, {
       deleteAssignee: remove
     })
   },

@@ -5,4 +5,6 @@ export const getAll = "GET_ALL";
 export const set = "SET";
 export const add = "ADD";
 export const edit = "EDIT";
+
+/** Actions */
 export const remove = "REMOVE";

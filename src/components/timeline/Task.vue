@@ -106,7 +106,7 @@ import {
   addLink,
   update,
   remove,
-  getLinksByTask,
+  getLinksFromTask,
   removeLink
 } from "@/store/tasks/types";
 import { getById } from "@/store/projects/types";
@@ -151,7 +151,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(modules.tasks, { getLinksByTask: getLinksByTask }),
+    ...mapGetters(modules.tasks, { getLinksFromTask: getLinksFromTask }),
     ...mapGetters(modules.projects, { getProject: getById }),
     ...mapGetters(modules.ui, { linkingTask: getLinkingTask }),
     project() {
@@ -176,7 +176,7 @@ export default {
     },
     linkingTaskLinks() {
       return this.isCurrentlyLinking
-        ? this.getLinksByTask(this.linkingTask)
+        ? this.getLinksFromTask(this.linkingTask)
         : [];
     },
     isLinkingTask() {
@@ -195,10 +195,10 @@ export default {
   },
   methods: {
     ...mapMutations(modules.tasks, {
-      deleteTask: remove,
       removeLinkInStore: removeLink
     }),
     ...mapActions(modules.tasks, {
+      deleteTask: remove,
       addLinkInStore: addLink,
       editTask: update
     }),

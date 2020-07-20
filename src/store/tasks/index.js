@@ -9,13 +9,16 @@ import {
   getAll,
   getByAssignee,
   getLinks,
-  getLinksByTask,
+  getLinksFromTask,
   getOne,
+  internalRemoveSingle,
   remove,
   removeByAssignee,
   removeByProject,
   removeLink,
-  internalUpdateSingle
+  internalUpdateSingle,
+  getLinksToTask,
+  getByProject
 } from "@/store/tasks/types";
 import { generateNewId } from "@/utils";
 
@@ -47,11 +50,11 @@ export default {
   getters: {
     [getAll]: selectAll,
     [getByAssignee]: selectByAssignee,
+    [getByProject]: selectByProject,
     [getOne]: selectOne,
     [getLinks]: state => {
-      const tasks = selectAll(state);
       const linkTuples = [];
-      tasks.forEach(task => {
+      selectAll(state).forEach(task => {
         task.links.forEach(link => {
           linkTuples.push({
             from: task.id,
@@ -61,9 +64,12 @@ export default {
       });
       return linkTuples;
     },
-    [getLinksByTask]: (state, getters) => taskId => {
+    [getLinksFromTask]: (state, getters) => taskId => {
       const task = getters[getOne](taskId);
       return task.links;
+    },
+    [getLinksToTask]: (state, getters) => taskId => {
+      return getters[getAll].filter(t => t.links.includes(taskId));
     }
   },
   mutations: {
@@ -79,23 +85,33 @@ export default {
       const newLinks = state[from].links.filter(link => link !== to);
       Vue.set(state[from], "links", newLinks);
     },
-    [remove]: (state, taskId) => {
+    [internalRemoveSingle]: (state, taskId) => {
       Vue.delete(state, taskId);
-    },
-    [removeByAssignee]: (state, assigneeId) => {
-      const tasks = selectByAssignee(state)(assigneeId);
-      tasks.forEach(task => Vue.delete(state, task.id));
-    },
-    [removeByProject]: (state, assigneeId) => {
-      const tasks = selectByProject(state)(assigneeId);
-      tasks.forEach(task => Vue.delete(state, task.id));
     }
   },
   actions: {
-    [update]: ({ commit, state, dispatch, getters }, task) => {
+    [remove]: ({ commit, getters }, taskId) => {
+      commit(internalRemoveSingle, taskId);
+      getters[getLinksToTask](taskId)
+        .map(t => t.id)
+        .forEach(from => {
+          commit(removeLink, { from, to: taskId });
+        });
+    },
+    [removeByAssignee]: ({ getters, dispatch }, assigneeId) => {
+      getters[getByAssignee](assigneeId).forEach(task =>
+        dispatch(remove, task.id)
+      );
+    },
+    [removeByProject]: ({ getters, dispatch }, assigneeId) => {
+      getters[getByProject](assigneeId).forEach(task =>
+        dispatch(remove, task.id)
+      );
+    },
+    [update]: ({ commit, dispatch, getters }, task) => {
       commit(internalUpdateSingle, task);
 
-      const linksFromThisTask = task.links.map(selectOne(state));
+      const linksFromThisTask = task.links.map(getters[getOne]);
       linksFromThisTask.forEach(linkedTask => {
         if (linkedTask.start.isBefore(task.end)) {
           const daysBetween = linkedTask.end.diff(linkedTask.start, "d");
@@ -116,9 +132,7 @@ export default {
         }
       });
 
-      const linksToThisTask = getters[getAll].filter(t =>
-        t.links.includes(task.id)
-      );
+      const linksToThisTask = getters[getLinksToTask](task.id);
       linksToThisTask.forEach(linkedTask => {
         if (linkedTask.end.isAfter(task.start)) {
           const daysBetween = linkedTask.end.diff(linkedTask.start, "d");

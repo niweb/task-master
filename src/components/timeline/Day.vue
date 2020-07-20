@@ -1,20 +1,24 @@
 <template>
-  <div :class="`day ${isWeekend(date) ? 'day--weekend' : ''}`">
-    <div class="day__header">
-      <div class="day__weekday">
-        {{ date.format("ddd") }}
-      </div>
-      <div class="day__date">
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-chip v-on="on" :color="isToday(date) ? 'primary' : 'default'">
-              {{ date.format("DD") }}
-            </v-chip>
-          </template>
-          <span>{{ date.format("ll") }}</span>
-        </v-tooltip>
-      </div>
-    </div>
+  <div
+    :class="
+      `day
+      ${isWeekend(date) ? 'day--weekend' : ''}
+      ${isToday(date) ? 'day--today' : ''}`
+    "
+  >
+    <v-tooltip top>
+      <template v-slot:activator="{ on }">
+        <div class="day__header" v-on="on">
+          <div class="day__weekday">
+            {{ minimal ? date.format("dd")[0] : date.format("ddd") }}
+          </div>
+          <div class="day__date">
+            {{ date.format("DD") }}
+          </div>
+        </div>
+      </template>
+      <span>{{ date.format("ll") }}</span>
+    </v-tooltip>
     <div class="day__body"></div>
   </div>
 </template>
@@ -26,7 +30,12 @@ const today = moment();
 export default {
   name: "Day",
   props: {
-    date: moment
+    date: moment,
+    minimal: {
+      type: Boolean,
+      default: true,
+      required: false
+    }
   },
   methods: {
     isToday(day) {
@@ -69,6 +78,19 @@ export default {
   &__body {
     flex-grow: 1;
     min-height: 300px;
+  }
+
+  &--today &__body {
+    position: relative;
+    &::before {
+      content: "";
+      height: 100%;
+      width: 3px;
+      background-color: var(--v-primary-base);
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
   }
 }
 </style>

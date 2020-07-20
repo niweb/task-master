@@ -2,7 +2,11 @@
   <div class="scroll-wrapper" @scroll="onScroll">
     <div class="calendar" :style="cssVars">
       <div class="content">
-        <slot :scrollOffsetX="offsetX" :dates="days"></slot>
+        <slot
+          :scrollOffsetX="offsetX"
+          :dates="days"
+          :zoomLevel="columnWidth"
+        ></slot>
       </div>
       <Day
         v-for="(day, index) in days"
@@ -10,8 +14,16 @@
         :style="`--index: ${index};`"
         :key="day.format()"
         :date="day"
+        :minimal="columnWidth <= 40"
       ></Day>
     </div>
+    <ZoomControls
+      class="zoom-controls"
+      @zoom="onZoom"
+      :can-zoom-in="columnWidth < 200"
+      :can-zoom-out="columnWidth > 30"
+    >
+    </ZoomControls>
   </div>
 </template>
 
@@ -19,13 +31,15 @@
 import Moment from "moment";
 import { extendMoment } from "moment-range";
 import Day from "@/components/timeline/Day";
+import ZoomControls from "@/components/timeline/ZoomControls";
 
 const moment = extendMoment(Moment);
 
 export default {
   name: "Calendar",
   components: {
-    Day
+    Day,
+    ZoomControls
   },
   computed: {
     cssVars() {
@@ -66,6 +80,12 @@ export default {
       const newDays = Array.from(range).map(d => d.startOf("d"));
       this.days = [...newDays, ...this.days];
       this.$el.scrollTo(newDays.length * this.columnWidth, 0);
+    },
+    onZoom(level) {
+      const daysOutsideViewport = this.offsetX / this.columnWidth;
+      const zoomFactor = (this.columnWidth ^ 2) / 2;
+      this.columnWidth += level * zoomFactor;
+      this.$el.scrollTo(daysOutsideViewport * this.columnWidth, 0);
     }
   },
   mounted() {
@@ -80,7 +100,7 @@ export default {
       .by("day");
     return {
       days: Array.from(range).map(d => d.startOf("d")),
-      columnWidth: 50,
+      columnWidth: 40,
       offsetX: 0,
       dragging: false
     };
@@ -93,6 +113,12 @@ export default {
   width: 100%;
   height: 100%;
   overflow: auto;
+}
+
+.zoom-controls {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
 }
 
 .calendar {

@@ -58,6 +58,11 @@ export default {
       type: Number,
       required: true
     },
+    zoomLevel: {
+      type: Number,
+      required: false,
+      default: 0
+    },
     dates: {
       type: Array,
       validator: prop => prop.every(e => e instanceof moment)
@@ -95,7 +100,7 @@ export default {
         (acc, curr) => `${acc},${curr.id}`,
         ""
       );
-      return `${this.dates.length}-${assigneeOrder}`;
+      return `${this.zoomLevel}-${this.dates.length}-${assigneeOrder}`;
     }
   },
   methods: {

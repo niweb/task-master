@@ -46,8 +46,8 @@
 
 <script>
 import moment from "moment";
-import { mapGetters, mapMutations } from "vuex";
-import { add, edit } from "@/store/tasks/types";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { add, update } from "@/store/tasks/types";
 import DatePicker from "@/components/tasks/DatePicker";
 import { getAll as getAllAssignees } from "@/store/assignees/types";
 import { modules } from "@/store";
@@ -80,7 +80,8 @@ export default {
     this.values.project = this.task?.project || this.selectedProject;
   },
   methods: {
-    ...mapMutations(modules.tasks, { addTask: add, editTask: edit }),
+    ...mapMutations(modules.tasks, { addTask: add }),
+    ...mapActions(modules.tasks, { editTask: update }),
     handleSubmit(e) {
       e.preventDefault();
       const submitValues = {

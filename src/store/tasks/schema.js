@@ -1,5 +1,6 @@
 import moment from "moment";
 import {
+  isArrayOf,
   isInstance,
   isNull,
   isType,
@@ -15,7 +16,8 @@ const task = {
   assignee: assignee.id,
   project: value => project.id(value) || isNull(value),
   start: isInstance(moment),
-  end: isInstance(moment)
+  end: isInstance(moment),
+  links: isArrayOf("number")
 };
 
 export const isTask = object => validateSchema(object, task);

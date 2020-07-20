@@ -26,10 +26,14 @@ export default {
     [edit]: (state, assignee) => {
       const i = state.findIndex(a => a.id === assignee.id);
       Vue.set(state, i, assignee);
-    },
-    [remove](state, assigneeId) {
+    }
+  },
+  actions: {
+    [remove]({ state, dispatch }, assigneeId) {
       const i = state.findIndex(a => a.id === assigneeId);
-      this.commit(`${modules.tasks}/${removeByAssignee}`, assigneeId);
+      dispatch(`${modules.tasks}/${removeByAssignee}`, assigneeId, {
+        root: true
+      });
       Vue.delete(state, i);
     }
   }

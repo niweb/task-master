@@ -35,6 +35,8 @@ export const generateNewId = currentIds => {
 export const isType = type => value => typeof value === type;
 export const isInstance = type => value => value instanceof type;
 export const isNull = value => value === null;
+export const isArrayOf = type => value =>
+  typeof value === "object" && value.map(isType(type));
 
 /**
  * Validate if a given object has _all_ properties required by the schema

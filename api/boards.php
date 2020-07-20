@@ -1,24 +1,39 @@
 <?php
-
 $method = $_SERVER['REQUEST_METHOD'];
 $params = $_GET;
-$payload = json_decode(file_get_contents('php://input'));
-$filename = '../data/boards/${params["id"]}.json';
+$payload = file_get_contents('php://input');
+$filename = '../data/' . $params["id"] . '.json';
 
-var_dump([
-  'method' => $method,
-  'params' => $params,
-  'payload' => $payload,
-  'filename' => $filename,
-]);
+if ($method === "POST") {
+  if (!file_exists($filename)) {
+    file_put_contents($filename, $payload);
+    echo json_encode($payload);
+  } else {
+    http_response_code(409);
+  }
 
-// Try in browser console of client app and look at response in network tab
-// fetch('api/boards.php?id=3')
-// fetch('api/boards.php?id=3', { method: 'post', body: JSON.stringify({foo: 'bar'}) })
+} else if ($method === "PUT") {
+  if (file_exists($filename)) {
+    file_put_contents($filename, $payload);
+    echo json_encode($payload);
+  } else {
+    http_response_code(409);
+  }
 
-// Then you can do something like this
-// for post and put: file_put_contents($filename, $payload)
-// for get: file_get_contents($filename)
-// for delete: unlink($filename)
+} else if ($method === "DELETE") {
+  unlink($filename);
+
+} else if ($method === "GET") {
+  if (file_exists($filename)) {
+    $result = file_get_contents($filename, false);
+    header('Content-Type: application/json');
+    echo json_encode($result);
+  } else {
+    http_response_code(404);
+  }
+
+} else {
+  http_response_code(405);
+}
 
 ?>

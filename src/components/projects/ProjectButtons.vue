@@ -27,14 +27,9 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters } from "vuex";
 import { modules } from "@/store";
-import {
-  getAll as getAllProjects,
-  getSelected,
-  select,
-  remove
-} from "@/store/projects/types";
+import { getAll as getAllProjects, getSelected } from "@/store/projects/types";
 import ProjectForm from "@/components/projects/ProjectForm";
 import ProjectButton from "@/components/projects/ProjectButton";
 
@@ -52,9 +47,6 @@ export default {
     })
   },
 
-  methods: {
-    ...mapMutations(modules.projects, { select, remove })
-  },
   data() {
     return {
       dialog: false

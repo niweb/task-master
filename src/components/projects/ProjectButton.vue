@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import { modules } from "@/store";
 import { getSelected, select, remove } from "@/store/projects/types";
 import ProjectForm from "@/components/projects/ProjectForm";
@@ -82,7 +82,8 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(modules.projects, { select, remove })
+    ...mapMutations(modules.projects, { select }),
+    ...mapActions(modules.projects, { remove })
   },
   data() {
     return {

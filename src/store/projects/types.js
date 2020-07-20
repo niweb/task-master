@@ -7,5 +7,7 @@ export const getById = "GET_BY_ID";
 export const set = "SET";
 export const add = "ADD";
 export const edit = "EDIT";
-export const remove = "REMOVE";
 export const select = "SELECT";
+
+/** Actions */
+export const remove = "REMOVE";

@@ -41,16 +41,20 @@ export default {
       const i = state.items.findIndex(a => a.id === project.id);
       Vue.set(state.items, i, project);
     },
-    [remove](state, projectId) {
+    [select](state, projectId) {
+      state.selected = projectId;
+    }
+  },
+  actions: {
+    [remove]({ state, dispatch }, projectId) {
       const i = state.items.findIndex(a => a.id === projectId);
-      this.commit(`${modules.tasks}/${removeByProject}`, projectId);
+      dispatch(`${modules.tasks}/${removeByProject}`, projectId, {
+        root: true
+      });
       Vue.delete(state.items, i);
       if ((state.selected = projectId)) {
         state.selected = state.items[0]?.id;
       }
-    },
-    [select](state, projectId) {
-      state.selected = projectId;
     }
   }
 };

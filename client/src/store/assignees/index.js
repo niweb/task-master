@@ -20,16 +20,20 @@ export default {
       state.push(...list);
     },
     [add]: (state, assignee) => {
-      assignee.id = generateNewId(Object.keys(state));
+      assignee.id = generateNewId(state.map(p => p.id));
       state.push(assignee);
     },
     [edit]: (state, assignee) => {
       const i = state.findIndex(a => a.id === assignee.id);
       Vue.set(state, i, assignee);
-    },
-    [remove](state, assigneeId) {
+    }
+  },
+  actions: {
+    [remove]({ state, dispatch }, assigneeId) {
       const i = state.findIndex(a => a.id === assigneeId);
-      this.commit(`${modules.tasks}/${removeByAssignee}`, assigneeId);
+      dispatch(`${modules.tasks}/${removeByAssignee}`, assigneeId, {
+        root: true
+      });
       Vue.delete(state, i);
     }
   }

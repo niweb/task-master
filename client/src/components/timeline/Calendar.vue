@@ -1,47 +1,37 @@
 <template>
   <div class="scroll-wrapper" @scroll="onScroll">
     <div class="calendar" :style="cssVars">
-      <Draggable
-        v-model="assignees"
-        @start="dragging = true"
-        @end="dragging = false"
-        class="drag-wrapper"
-        handle=".lane__name-tag"
-      >
-        <Lane
-          v-for="(assignee, index) in assignees"
-          class="lane"
-          :style="`--index: ${index};`"
-          :key="assignee.id"
-          :assignee="assignee"
+      <div class="content">
+        <slot
+          :scrollOffsetX="offsetX"
           :dates="days"
-          :column-width="columnWidth"
-          :scroll-offset-x="offsetX"
-        >
-          <NameTag class="lane__name-tag" :assignee="assignee"></NameTag>
-        </Lane>
-      </Draggable>
+          :zoomLevel="columnWidth"
+        ></slot>
+      </div>
       <Day
         v-for="(day, index) in days"
         class="day"
         :style="`--index: ${index};`"
         :key="day.format()"
         :date="day"
+        :minimal="columnWidth <= 40"
       ></Day>
     </div>
+    <ZoomControls
+      class="zoom-controls"
+      @zoom="onZoom"
+      :can-zoom-in="columnWidth < 200"
+      :can-zoom-out="columnWidth > 30"
+    >
+    </ZoomControls>
   </div>
 </template>
 
 <script>
 import Moment from "moment";
 import { extendMoment } from "moment-range";
-import Draggable from "vuedraggable";
-
 import Day from "@/components/timeline/Day";
-import Lane from "@/components/timeline/Lane";
-import { getAll, set } from "@/store/assignees/types";
-import { modules } from "@/store";
-import NameTag from "@/components/assignees/NameTag";
+import ZoomControls from "@/components/timeline/ZoomControls";
 
 const moment = extendMoment(Moment);
 
@@ -49,24 +39,13 @@ export default {
   name: "Calendar",
   components: {
     Day,
-    Lane,
-    Draggable,
-    NameTag
+    ZoomControls
   },
   computed: {
-    assignees: {
-      get() {
-        return this.$store.getters[`${modules.assignees}/${getAll}`];
-      },
-      set(value) {
-        this.$store.commit(`${modules.assignees}/${set}`, value);
-      }
-    },
     cssVars() {
       return {
         "--columns": this.days.length,
         "--column-width": `${this.columnWidth}px`,
-        "--lanes": this.assignees.length,
         "--offset-x": `${this.offsetX}px`
       };
     }
@@ -101,6 +80,12 @@ export default {
       const newDays = Array.from(range).map(d => d.startOf("d"));
       this.days = [...newDays, ...this.days];
       this.$el.scrollTo(newDays.length * this.columnWidth, 0);
+    },
+    onZoom(level) {
+      const daysOutsideViewport = this.offsetX / this.columnWidth;
+      const zoomFactor = (this.columnWidth ^ 2) / 2;
+      this.columnWidth += level * zoomFactor;
+      this.$el.scrollTo(daysOutsideViewport * this.columnWidth, 0);
     }
   },
   mounted() {
@@ -115,7 +100,7 @@ export default {
       .by("day");
     return {
       days: Array.from(range).map(d => d.startOf("d")),
-      columnWidth: 50,
+      columnWidth: 40,
       offsetX: 0,
       dragging: false
     };
@@ -130,34 +115,28 @@ export default {
   overflow: auto;
 }
 
+.zoom-controls {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+}
+
 .calendar {
-  --rows: calc(var(--lanes) + 2);
   height: 100%;
   display: grid;
   grid-template-columns: repeat(var(--columns), var(--column-width));
-  grid-template-rows: [header] 60px [lanes] repeat(var(--lanes), auto) [remaining-space] 1fr;
+  grid-template-rows: [header] 60px [content] auto [remaining-space] 1fr;
 }
 
 .day {
-  grid-row: 1 / span var(--rows);
+  grid-row: 1 / span 3;
   grid-column: calc(var(--index) + 1); // grid starts with 1
 }
 
-.drag-wrapper {
-  display: contents;
-}
-
-.lane {
+.content {
   z-index: 1;
   margin: 20px 0;
   grid-column: 1 / span var(--columns);
-  grid-row: calc(var(--index) + 2); // grid starts with 1 + exclude header row
-
-  &__name-tag {
-    position: absolute;
-    left: calc(var(--offset-x) + 10px);
-    z-index: 1;
-    cursor: grab;
-  }
+  grid-row: 2;
 }
 </style>

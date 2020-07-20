@@ -1,4 +1,25 @@
 /**
+ * Find contrast color for text on colored background
+ */
+export const getContrastColor = color => {
+  if (color.indexOf("#") === 0) {
+    color = color.slice(1);
+  }
+  if (color.length === 3) {
+    color = color[0] + color[0] + color[1] + color[1] + color[2] + color[2];
+  }
+  if (color.length !== 6) {
+    throw new Error("Invalid HEX color.");
+  }
+
+  const r = parseInt(color.slice(0, 2), 16);
+  const g = parseInt(color.slice(2, 4), 16);
+  const b = parseInt(color.slice(4, 6), 16);
+
+  return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? "#000000" : "#FFFFFF";
+};
+
+/**
  * Generate a new id, that is not yet assigned
  */
 export const generateNewId = currentIds => {
@@ -13,6 +34,9 @@ export const generateNewId = currentIds => {
  */
 export const isType = type => value => typeof value === type;
 export const isInstance = type => value => value instanceof type;
+export const isNull = value => value === null;
+export const isArrayOf = type => value =>
+  typeof value === "object" && value.map(isType(type));
 
 /**
  * Validate if a given object has _all_ properties required by the schema

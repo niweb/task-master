@@ -2,20 +2,33 @@
   <div class="timeline">
     <div class="actions">
       <AddAssigneeButton />
+      <ProjectButtons />
     </div>
-    <Calendar />
+    <Calendar>
+      <template v-slot:default="{ scrollOffsetX, dates, zoomLevel }">
+        <Planner
+          :scroll-offset-x="scrollOffsetX"
+          :dates="dates"
+          :zoom-level="zoomLevel"
+        ></Planner>
+      </template>
+    </Calendar>
   </div>
 </template>
 
 <script>
 import Calendar from "@/components/timeline/Calendar";
 import AddAssigneeButton from "@/components/assignees/AddAssigneeButton";
+import ProjectButtons from "@/components/projects/ProjectButtons";
+import Planner from "@/components/timeline/Planner";
 
 export default {
   name: "Timeline",
   components: {
     AddAssigneeButton,
-    Calendar
+    Calendar,
+    Planner,
+    ProjectButtons
   }
 };
 </script>
@@ -31,6 +44,7 @@ export default {
   display: flex;
   padding: 20px;
   flex-direction: row;
+  justify-content: space-between;
   align-items: flex-start;
 }
 </style>

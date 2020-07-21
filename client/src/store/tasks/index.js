@@ -81,7 +81,9 @@ export default {
       });
     },
     [resetAll](state) {
-      Object.assign(state, {});
+      Object.keys(state).forEach(key => {
+        Vue.delete(state, key);
+      });
     },
     [add](state, task) {
       task.id = generateNewId(Object.keys(state));

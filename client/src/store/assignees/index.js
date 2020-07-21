@@ -22,7 +22,8 @@ export default {
       state.push(...list);
     },
     [reset]: state => {
-      Object.assign(state, initialState());
+      state.splice(0);
+      state.push(...initialState());
     },
     [add]: (state, assignee) => {
       assignee.id = generateNewId(state.map(p => p.id));

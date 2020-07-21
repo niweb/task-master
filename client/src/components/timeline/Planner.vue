@@ -10,6 +10,7 @@
         :dates="dates"
         :scroll-offset-x="scrollOffsetX"
         :height="laneHeight[assignee.id]"
+        :columnWidth="zoomLevel"
       >
         <template v-for="(taskLane, index) in sortedTasks[assignee.id]">
           <Task

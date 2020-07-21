@@ -19,6 +19,47 @@
         ></v-text-field>
       </v-col>
     </v-row>
+    <v-dialog v-model="dialog" max-width="400">
+      <v-card>
+        <v-card-title class="headline">
+          New board created
+        </v-card-title>
+        <v-card-text>
+          <p class="mt-4 mb-8">
+            To access the board later on, please save the following identifier
+            or bookmark the next page for direct access.
+          </p>
+          <v-text-field
+            readonly
+            outlined
+            v-model="boardId"
+            label="Board Identifier"
+          >
+            <v-tooltip slot="append" bottom v-model="clipboardTooltip">
+              <template #activator="{ on, attrs }">
+                <v-icon
+                  dark
+                  color="primary"
+                  @click="copyToClipboard"
+                  v-on="on"
+                  v-bind="attrs"
+                >
+                  mdi-content-copy
+                </v-icon>
+              </template>
+              <span v-if="copied">Copied</span>
+              <span v-else>Copy</span>
+            </v-tooltip>
+          </v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text color="primary" @click="openBoard">
+            Open board
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -33,7 +74,10 @@ export default {
   components: {},
   data() {
     return {
-      boardId: ""
+      boardId: "",
+      dialog: false,
+      clipboardTooltip: false,
+      copied: false
     };
   },
   methods: {
@@ -42,11 +86,19 @@ export default {
       load: load
     }),
     async newBoard() {
-      const id = await this.create();
-      await this.$router.push(buildPath(paths.timeline, { id }));
+      this.boardId = await this.create();
+      this.dialog = true;
     },
     async openBoard() {
       await this.$router.push(buildPath(paths.timeline, { id: this.boardId }));
+    },
+    copyToClipboard() {
+      navigator.clipboard.writeText(this.boardId);
+      this.clipboardTooltip = true;
+      this.copied = true;
+      setTimeout(() => {
+        this.clipboardTooltip = false;
+      }, 2000);
     }
   }
 };

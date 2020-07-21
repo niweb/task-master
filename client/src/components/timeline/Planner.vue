@@ -19,7 +19,7 @@
             :top="index * taskHeight"
             :height="taskHeight"
             :first-day-in-calendar="dates[0]"
-            :pixels-per-day="columnWidth"
+            :pixels-per-day="zoomLevel"
           ></Task>
         </template>
       </Lane>
@@ -138,7 +138,6 @@ export default {
   },
   data() {
     return {
-      columnWidth: 50,
       taskHeight: 30
     };
   }

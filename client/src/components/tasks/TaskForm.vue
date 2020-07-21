@@ -16,6 +16,14 @@
         label="Assignee"
         outlined
       ></v-select>
+      <v-select
+        v-model="values.project"
+        :items="projects"
+        item-text="name"
+        item-value="id"
+        label="Project"
+        outlined
+      ></v-select>
       <DatePicker
         v-model="values.start"
         label="Start Date"
@@ -38,20 +46,13 @@
 
 <script>
 import moment from "moment";
-import { mapGetters, mapMutations } from "vuex";
-import { add, edit } from "@/store/tasks/types";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { add, update } from "@/store/tasks/types";
 import DatePicker from "@/components/tasks/DatePicker";
-import { getAll } from "@/store/assignees/types";
+import { getAll as getAllAssignees } from "@/store/assignees/types";
 import { modules } from "@/store";
 import { isPartialTask, isTask } from "@/store/tasks/schema";
-
-const defaultValues = {
-  id: null,
-  title: "",
-  assignee: 0,
-  start: moment(),
-  end: moment()
-};
+import { getAll as getAllProjects, getSelected } from "@/store/projects/types";
 
 export default {
   name: "TaskForm",
@@ -64,14 +65,23 @@ export default {
   },
   computed: {
     ...mapGetters(modules.assignees, {
-      assignees: getAll
+      assignees: getAllAssignees
+    }),
+    ...mapGetters(modules.projects, {
+      projects: getAllProjects,
+      selectedProject: getSelected
     }),
     isNewTask() {
       return this.task?.id == null;
     }
   },
+  created() {
+    // hacky way to insert computed value into initial values stored in data
+    this.values.project = this.task?.project || this.selectedProject;
+  },
   methods: {
-    ...mapMutations(modules.tasks, { addTask: add, editTask: edit }),
+    ...mapMutations(modules.tasks, { addTask: add }),
+    ...mapActions(modules.tasks, { editTask: update }),
     handleSubmit(e) {
       e.preventDefault();
       const submitValues = {
@@ -91,13 +101,24 @@ export default {
     },
 
     resetForm() {
-      this.values = defaultValues;
+      this.values = this.getDefaultValues();
+    },
+
+    getDefaultValues() {
+      return {
+        id: null,
+        title: "",
+        assignee: 0,
+        project: this.selectedProject,
+        start: moment(),
+        end: moment()
+      };
     }
   },
   data: function() {
     return {
       values: {
-        ...defaultValues,
+        ...this.getDefaultValues(),
         ...this.task
       }
     };
@@ -105,7 +126,7 @@ export default {
   watch: {
     task() {
       this.values = {
-        ...defaultValues,
+        ...this.getDefaultValues(),
         ...this.task
       };
     }

@@ -1,7 +1,11 @@
+import { mapGetters } from "vuex";
+import { getExportData } from "../store/boards/types";
+import { modules } from "../store";
+
 export default {
   methods: {
     downloadAppState() {
-      const filename = "task-manager.json";
+      const filename = "task-master.json";
       const content = JSON.stringify(this.getCurrentAppState, null, 2);
       const element = document.createElement("a");
       element.setAttribute(
@@ -16,8 +20,6 @@ export default {
     }
   },
   computed: {
-    getCurrentAppState() {
-      return this.$store.state;
-    }
+    ...mapGetters(modules.boards, { getCurrentAppState: getExportData })
   }
 };

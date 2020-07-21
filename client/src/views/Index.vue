@@ -2,7 +2,7 @@
   <v-container fill-height fluid>
     <v-row align="center" justify="center">
       <v-col cols="6" sm="5" md="4" lg="3" xl="2" class="content">
-        <v-btn color="primary" large @click="create">
+        <v-btn color="primary" large @click="newBoard">
           Create new board
           <v-icon class="btn-icon">mdi-plus</v-icon>
         </v-btn>
@@ -26,6 +26,7 @@
 import { mapActions } from "vuex";
 import { modules } from "@/store";
 import { create, load } from "@/store/boards/types";
+import paths, { buildPath } from "../router/paths";
 
 export default {
   name: "Timeline",
@@ -40,8 +41,12 @@ export default {
       create: create,
       load: load
     }),
-    openBoard() {
-      this.load(this.boardId);
+    async newBoard() {
+      const id = await this.create();
+      await this.$router.push(buildPath(paths.timeline, { id }));
+    },
+    async openBoard() {
+      await this.$router.push(buildPath(paths.timeline, { id: this.boardId }));
     }
   }
 };

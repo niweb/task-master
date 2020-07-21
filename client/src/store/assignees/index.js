@@ -1,16 +1,18 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import { add, getAll, edit, set, remove } from "@/store/assignees/types";
+import { add, getAll, edit, set, remove, reset } from "@/store/assignees/types";
 import { generateNewId } from "@/utils";
 import { modules } from "@/store";
 import { removeByAssignee } from "@/store/tasks/types";
 
 Vue.use(Vuex);
 
+const initialState = () => [{ id: 0, name: "Default" }];
+
 export default {
   namespaced: true,
-  state: [{ id: 0, name: "Default" }],
+  state: initialState,
   getters: {
     [getAll]: state => state
   },
@@ -18,6 +20,9 @@ export default {
     [set]: (state, list) => {
       state.splice(0);
       state.push(...list);
+    },
+    [reset]: state => {
+      Object.assign(state, initialState());
     },
     [add]: (state, assignee) => {
       assignee.id = generateNewId(state.map(p => p.id));

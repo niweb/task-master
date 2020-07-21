@@ -34,6 +34,7 @@
 import { mapGetters } from "vuex";
 import { modules } from "@/store";
 import { getLinks } from "@/store/tasks/types";
+import { getAll } from "../../store/tasks/types";
 
 export default {
   name: "Links",
@@ -50,7 +51,8 @@ export default {
   },
   computed: {
     ...mapGetters(modules.tasks, {
-      links: getLinks
+      links: getLinks,
+      tasks: getAll
     })
   },
   methods: {

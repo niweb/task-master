@@ -7,6 +7,8 @@ import {
   edit,
   set,
   remove,
+  resetState,
+  setState,
   select,
   getSelected,
   getById
@@ -17,12 +19,14 @@ import { removeByProject } from "@/store/tasks/types";
 
 Vue.use(Vuex);
 
+const initialState = () => ({
+  selected: 0,
+  items: [{ id: 0, name: "Default", color: "#2c3e50" }]
+});
+
 export default {
   namespaced: true,
-  state: {
-    selected: 0,
-    items: [{ id: 0, name: "Default", color: "#2c3e50" }]
-  },
+  state: initialState,
   getters: {
     [getAll]: state => state.items,
     [getSelected]: state => state.selected,
@@ -32,6 +36,12 @@ export default {
     [set]: (state, list) => {
       state.items.splice(0);
       state.items.push(...list);
+    },
+    [setState]: (state, newState) => {
+      Object.assign(state, newState);
+    },
+    [resetState]: state => {
+      Object.assign(state, initialState());
     },
     [add]: (state, project) => {
       project.id = generateNewId(state.items.map(p => p.id));

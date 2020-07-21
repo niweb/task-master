@@ -1,6 +1,11 @@
 export default {
-  index: "",
+  index: "/",
   timeline: "/:id"
+};
+
+export const pathNames = {
+  index: "Index",
+  timeline: "Timeline"
 };
 
 export const buildPath = (path, params) => {

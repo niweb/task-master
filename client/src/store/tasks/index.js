@@ -75,7 +75,10 @@ export default {
   },
   mutations: {
     [setAll](state, tasks) {
-      Object.assign(state, tasks);
+      Object.assign(state, {});
+      Object.entries(tasks).forEach(([key, value]) => {
+        Vue.set(state, key, value);
+      });
     },
     [resetAll](state) {
       Object.assign(state, {});

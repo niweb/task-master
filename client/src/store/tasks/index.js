@@ -21,6 +21,7 @@ import {
   getByProject
 } from "@/store/tasks/types";
 import { generateNewId } from "@/utils";
+import { resetAll, setAll } from "./types";
 
 Vue.use(Vuex);
 
@@ -73,24 +74,35 @@ export default {
     }
   },
   mutations: {
-    [add]: (state, task) => {
+    [setAll](state, tasks) {
+      Object.assign(state, {});
+      Object.entries(tasks).forEach(([key, value]) => {
+        Vue.set(state, key, value);
+      });
+    },
+    [resetAll](state) {
+      Object.keys(state).forEach(key => {
+        Vue.delete(state, key);
+      });
+    },
+    [add](state, task) {
       task.id = generateNewId(Object.keys(state));
       task.links = [];
       Vue.set(state, task.id, stringify(task));
     },
-    [internalUpdateSingle]: (state, task) => {
+    [internalUpdateSingle](state, task) {
       Vue.set(state, task.id, stringify(task));
     },
-    [removeLink]: (state, { from, to }) => {
+    [removeLink](state, { from, to }) {
       const newLinks = state[from].links.filter(link => link !== to);
       Vue.set(state[from], "links", newLinks);
     },
-    [internalRemoveSingle]: (state, taskId) => {
+    [internalRemoveSingle](state, taskId) {
       Vue.delete(state, taskId);
     }
   },
   actions: {
-    [remove]: ({ commit, getters }, taskId) => {
+    [remove]({ commit, getters }, taskId) {
       commit(internalRemoveSingle, taskId);
       getters[getLinksToTask](taskId)
         .map(t => t.id)
@@ -98,17 +110,17 @@ export default {
           commit(removeLink, { from, to: taskId });
         });
     },
-    [removeByAssignee]: ({ getters, dispatch }, assigneeId) => {
+    [removeByAssignee]({ getters, dispatch }, assigneeId) {
       getters[getByAssignee](assigneeId).forEach(task =>
         dispatch(remove, task.id)
       );
     },
-    [removeByProject]: ({ getters, dispatch }, assigneeId) => {
+    [removeByProject]({ getters, dispatch }, assigneeId) {
       getters[getByProject](assigneeId).forEach(task =>
         dispatch(remove, task.id)
       );
     },
-    [update]: ({ commit, dispatch, getters }, task) => {
+    [update]({ commit, dispatch, getters }, task) {
       commit(internalUpdateSingle, task);
 
       const linksFromThisTask = task.links.map(getters[getOne]);
@@ -153,7 +165,7 @@ export default {
         }
       });
     },
-    [addLink]: ({ dispatch, getters }, { from, to }) => {
+    [addLink]({ dispatch, getters }, { from, to }) {
       const fromTask = getters[getOne](from);
       const toIsValid = to !== null && to !== undefined;
       if (fromTask && toIsValid && !fromTask.links.includes(to)) {

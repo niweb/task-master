@@ -10,6 +10,7 @@
         :dates="dates"
         :scroll-offset-x="scrollOffsetX"
         :height="laneHeight[assignee.id]"
+        :columnWidth="zoomLevel"
       >
         <template v-for="(taskLane, index) in sortedTasks[assignee.id]">
           <Task
@@ -19,7 +20,7 @@
             :top="index * taskHeight"
             :height="taskHeight"
             :first-day-in-calendar="dates[0]"
-            :pixels-per-day="columnWidth"
+            :pixels-per-day="zoomLevel"
           ></Task>
         </template>
       </Lane>
@@ -138,7 +139,6 @@ export default {
   },
   data() {
     return {
-      columnWidth: 50,
       taskHeight: 30
     };
   }

@@ -13,14 +13,24 @@
         ></Planner>
       </template>
     </Calendar>
+
+    <v-overlay :value="loading">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </div>
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+
 import Calendar from "@/components/timeline/Calendar";
 import AddAssigneeButton from "@/components/assignees/AddAssigneeButton";
 import ProjectButtons from "@/components/projects/ProjectButtons";
 import Planner from "@/components/timeline/Planner";
+
+import { modules } from "@/store";
+import { getRequestInProgress, load } from "@/store/boards/types";
+import { requestTypes } from "../store/boards/types";
 
 export default {
   name: "Timeline",
@@ -29,6 +39,18 @@ export default {
     Calendar,
     Planner,
     ProjectButtons
+  },
+  computed: {
+    ...mapGetters(modules.boards, { requestStatus: getRequestInProgress }),
+    loading() {
+      return this.requestStatus === requestTypes.load;
+    }
+  },
+  methods: {
+    ...mapActions(modules.boards, { triggerLoad: load })
+  },
+  beforeMount() {
+    this.triggerLoad();
   }
 };
 </script>

@@ -8,6 +8,8 @@ export const getLinksFromTask = "GET_LINKS_FROM_TASK";
 export const getLinksToTask = "GET_LINKS_TO_TASK";
 
 /** Mutations */
+export const setAll = "SET_ALL";
+export const resetAll = "RESET_ALL";
 export const add = "ADD";
 export const removeLink = "REMOVE_LINK";
 

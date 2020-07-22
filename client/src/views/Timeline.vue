@@ -30,6 +30,7 @@ import Planner from "@/components/timeline/Planner";
 
 import { modules } from "@/store";
 import { getRequestInProgress, load } from "@/store/boards/types";
+import { requestTypes } from "../store/boards/types";
 
 export default {
   name: "Timeline",
@@ -40,7 +41,10 @@ export default {
     ProjectButtons
   },
   computed: {
-    ...mapGetters(modules.boards, { loading: getRequestInProgress })
+    ...mapGetters(modules.boards, { requestStatus: getRequestInProgress }),
+    loading() {
+      return this.requestStatus === requestTypes.load;
+    }
   },
   methods: {
     ...mapActions(modules.boards, { triggerLoad: load })

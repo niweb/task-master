@@ -5,13 +5,7 @@
       <ProjectButtons />
     </div>
     <Calendar>
-      <template v-slot:default="{ scrollOffsetX, dates, zoomLevel }">
-        <Planner
-          :scroll-offset-x="scrollOffsetX"
-          :dates="dates"
-          :zoom-level="zoomLevel"
-        ></Planner>
-      </template>
+      <Planner></Planner>
     </Calendar>
 
     <v-overlay :value="loading">

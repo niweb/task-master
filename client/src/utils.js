@@ -29,6 +29,37 @@ export const generateNewId = currentIds => {
 };
 
 /** =========================
+ *  Date Handling
+ *  =========================
+ */
+import Moment from "moment";
+import { extendMoment } from "moment-range";
+
+const moment = extendMoment(Moment);
+
+const isBusinessDay = date => date.isoWeekday() < 6;
+
+export const getBusinessDaysBetween = (start, end) => {
+  const range = moment.range(start, end).by("day");
+  return Array.from(range)
+    .map(d => d.startOf("d"))
+    .filter(isBusinessDay);
+};
+
+export const addBusinessDays = (date, days) => {
+  date = moment(date);
+  let absoluteDays = Math.abs(days);
+  const increment = days / absoluteDays;
+  while (absoluteDays > 0) {
+    date = date.add(increment, "d");
+    if (isBusinessDay(date)) {
+      absoluteDays -= 1;
+    }
+  }
+  return date;
+};
+
+/** =========================
  *  Validating Object Schemas
  *  =========================
  */

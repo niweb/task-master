@@ -7,10 +7,7 @@
         drag-handle-class="lane__drag-handle"
         :key="assignee.id"
         :assignee="assignee"
-        :dates="dates"
-        :scroll-offset-x="scrollOffsetX"
         :height="laneHeight[assignee.id]"
-        :columnWidth="zoomLevel"
       >
         <template v-for="(taskLane, index) in sortedTasks[assignee.id]">
           <Task
@@ -19,8 +16,6 @@
             :task="task"
             :top="index * taskHeight"
             :height="taskHeight"
-            :first-day-in-calendar="dates[0]"
-            :pixels-per-day="zoomLevel"
           ></Task>
         </template>
       </Lane>
@@ -43,6 +38,7 @@ import Links from "@/components/timeline/Links";
 import { modules } from "@/store";
 import { getAll, set } from "@/store/assignees/types";
 import { getByAssignee } from "@/store/tasks/types";
+import { getPixelsPerDay, getDates } from "@/store/calendar/types";
 
 const moment = extendMoment(Moment);
 
@@ -54,23 +50,17 @@ export default {
     Task,
     Links
   },
-  props: {
-    scrollOffsetX: {
-      type: Number,
-      required: true
-    },
-    zoomLevel: {
-      type: Number,
-      required: false,
-      default: 0
-    },
-    dates: {
-      type: Array,
-      validator: prop => prop.every(e => e instanceof moment)
-    }
+  data() {
+    return {
+      taskHeight: 30
+    };
   },
   computed: {
     ...mapGetters(modules.tasks, { tasksByAssignee: getByAssignee }),
+    ...mapGetters(modules.calendar, {
+      dates: getDates,
+      zoomLevel: getPixelsPerDay
+    }),
     assignees: {
       get() {
         return this.$store.getters[`${modules.assignees}/${getAll}`];
@@ -101,7 +91,7 @@ export default {
         (acc, curr) => `${acc},${curr.id}`,
         ""
       );
-      return `${this.zoomLevel}-${this.dates.length}-${assigneeOrder}`;
+      return `${this.zoomLevel}-${this.dates?.length}-${assigneeOrder}`;
     }
   },
   methods: {
@@ -136,11 +126,6 @@ export default {
         });
       return lanes;
     }
-  },
-  data() {
-    return {
-      taskHeight: 30
-    };
   }
 };
 </script>

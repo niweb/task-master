@@ -1,9 +1,10 @@
 <template>
   <div
+    v-if="!isWeekend"
     :class="
       `day
-      ${isWeekend(date) ? 'day--weekend' : ''}
-      ${isToday(date) ? 'day--today' : ''}`
+      ${isToday ? 'day--today' : ''}
+      ${isFriday ? 'day--friday' : ''}`
     "
   >
     <v-tooltip top>
@@ -33,17 +34,21 @@ export default {
     date: moment,
     minimal: {
       type: Boolean,
-      default: true,
-      required: false
+      required: false,
+      default: false
     }
   },
-  methods: {
-    isToday(day) {
-      return day.isSame(today, "day");
+  computed: {
+    isToday() {
+      return this.date.isSame(today, "day");
     },
-    isWeekend(day) {
-      const weekday = day.format("e");
+    isWeekend() {
+      const weekday = this.date.format("e");
       return weekday === "0" || weekday === "6";
+    },
+    isFriday() {
+      const weekday = this.date.format("e");
+      return weekday === "5";
     }
   }
 };
@@ -51,18 +56,12 @@ export default {
 
 <style scoped lang="scss">
 .day {
-  border: 1px solid #efefef;
+  border-right: 1px solid #efefef;
   display: flex;
   flex-direction: column;
 
-  &--weekend {
-    background: repeating-linear-gradient(
-      -55deg,
-      transparent,
-      transparent 5px,
-      #efefef 5px,
-      #efefef 10px
-    );
+  &--friday {
+    border-right-color: #8f8f8f;
   }
 
   &__header {

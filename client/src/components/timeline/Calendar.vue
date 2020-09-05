@@ -4,6 +4,14 @@
       <div class="content">
         <slot></slot>
       </div>
+      <div
+        class="month"
+        v-for="(count, month) in months"
+        :key="month"
+        :style="{ '--span-days': count }"
+      >
+        {{ month }}
+      </div>
       <Day
         v-for="(day, index) in dates"
         :key="day.format()"
@@ -52,6 +60,15 @@ export default {
       offsetX: getScrollXOffset,
       dates: getDates
     }),
+    months() {
+      return this.dates
+        .map(d => d.format("MMMM YYYY"))
+        .reduce((acc, curr) => {
+          const currentCount = acc[curr] || 0;
+          acc[curr] = currentCount + 1;
+          return acc;
+        }, {});
+    },
     cssVars() {
       return {
         "--columns": this.dates.length,
@@ -146,11 +163,21 @@ export default {
   height: 100%;
   display: grid;
   grid-template-columns: repeat(var(--columns), var(--column-width));
-  grid-template-rows: [header] 60px [content] auto [remaining-space] 1fr;
+  grid-template-rows: [months] auto [days] 60px [content] auto [remaining-space] 1fr;
+}
+
+.month {
+  grid-row: months;
+  grid-column: span var(--span-days);
+  padding: 0 10px 10px;
+  color: #999999;
+  margin-left: -1px;
+  border-left: 1px solid #efefef;
+  white-space: nowrap;
 }
 
 .day {
-  grid-row: 1 / span 3;
+  grid-row: days / span 3;
   grid-column: calc(var(--index) + 1); // grid starts with 1
 }
 
@@ -158,6 +185,6 @@ export default {
   z-index: 1;
   margin: 20px 0;
   grid-column: 1 / span var(--columns);
-  grid-row: 2;
+  grid-row: content;
 }
 </style>

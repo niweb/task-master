@@ -17,7 +17,13 @@
 
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
-          <v-btn v-on="on" icon class="mx-1" @click="save">
+          <v-btn
+            v-on="on"
+            icon
+            class="mx-1"
+            @click="save"
+            :disabled="!needsSave"
+          >
             <v-progress-circular
               indeterminate
               size="32"
@@ -52,7 +58,7 @@
 import { mapActions, mapGetters } from "vuex";
 import exportAppState from "@/mixins/export";
 import paths from "@/router/paths";
-import { save } from "@/store/boards/types";
+import { getNeedsSave, save } from "@/store/boards/types";
 import { modules } from "@/store";
 import { getRequestInProgress, requestTypes } from "./store/boards/types";
 
@@ -69,7 +75,10 @@ export default {
     ...mapActions(modules.boards, { save: save })
   },
   computed: {
-    ...mapGetters(modules.boards, { requestStatus: getRequestInProgress }),
+    ...mapGetters(modules.boards, {
+      requestStatus: getRequestInProgress,
+      needsSave: getNeedsSave
+    }),
     saving() {
       return this.requestStatus === requestTypes.save;
     }

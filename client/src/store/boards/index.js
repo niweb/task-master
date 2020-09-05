@@ -15,7 +15,9 @@ import {
   internalRequest,
   getExportData,
   importData,
-  resetData
+  resetData,
+  getNeedsSave,
+  setLastSavedVersion
 } from "./types";
 import { modules } from "../index";
 
@@ -28,6 +30,7 @@ import {
   setState as setProjects,
   resetState as resetProjects
 } from "../projects/types";
+import { updateLastSavedVersion } from "@/store/boards/types";
 
 Vue.use(Vuex);
 
@@ -35,7 +38,7 @@ export default {
   namespaced: true,
   state: {
     id: null,
-    needsSave: false,
+    lastSavedVersion: null,
     requestInProgress: false
   },
   getters: {
@@ -49,12 +52,19 @@ export default {
         [modules.assignees]: rootState[modules.assignees],
         [modules.projects]: rootState[modules.projects]
       };
+    },
+    [getNeedsSave](state, getters) {
+      const currentVersion = getters[getExportData];
+      const lastSavedVersion = state.lastSavedVersion;
+      return JSON.stringify(currentVersion) !== lastSavedVersion;
     }
   },
   mutations: {
     [setCurrentBoardId]: (state, id) => Vue.set(state, "id", id),
     [setRequestInProgress]: (state, isRequesting) =>
-      Vue.set(state, "requestInProgress", isRequesting)
+      Vue.set(state, "requestInProgress", isRequesting),
+    [setLastSavedVersion]: (state, newVersion) =>
+      Vue.set(state, "lastSavedVersion", JSON.stringify(newVersion))
   },
   actions: {
     async [internalRequest](
@@ -75,12 +85,14 @@ export default {
     async [create]({ dispatch, getters }) {
       const newBoardId = uuid();
       dispatch(resetData);
+      const body = { ...getters[getExportData], id: newBoardId };
       await dispatch(internalRequest, {
         requestType: requestTypes.create,
         method: "post",
         params: { id: newBoardId },
-        body: { ...getters[getExportData], id: newBoardId }
+        body
       });
+      dispatch(updateLastSavedVersion);
       return newBoardId;
     },
     async [load]({ dispatch }) {
@@ -88,15 +100,17 @@ export default {
         requestType: requestTypes.load,
         method: "get"
       });
-      dispatch(importData, data);
+      await dispatch(importData, data);
+      dispatch(updateLastSavedVersion);
       return data;
     },
     async [save]({ dispatch, getters }) {
-      return await dispatch(internalRequest, {
+      await dispatch(internalRequest, {
         requestType: requestTypes.save,
         method: "put",
         body: getters[getExportData]
       });
+      dispatch(updateLastSavedVersion);
     },
     async [remove]({ dispatch }) {
       await dispatch(internalRequest, {
@@ -104,6 +118,7 @@ export default {
         method: "delete"
       });
       dispatch(resetData);
+      dispatch(updateLastSavedVersion);
     },
     [importData]({ commit }, data) {
       commit(`${modules.tasks}/${setTasks}`, data[modules.tasks], {
@@ -120,6 +135,8 @@ export default {
       commit(`${modules.tasks}/${resetTasks}`, null, { root: true });
       commit(`${modules.assignees}/${resetAssignees}`, null, { root: true });
       commit(`${modules.projects}/${resetProjects}`, null, { root: true });
-    }
+    },
+    [updateLastSavedVersion]: ({ commit, getters }) =>
+      commit(setLastSavedVersion, getters[getExportData])
   }
 };

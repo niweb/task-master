@@ -7,6 +7,9 @@
         required
         outlined
         autofocus
+        @input="titleErrors = []"
+        :error="titleErrors.length > 0"
+        :error-messages="titleErrors"
       ></v-text-field>
       <v-select
         v-model="values.assignee"
@@ -90,6 +93,11 @@ export default {
         end: this.values.end?.endOf("day")
       };
 
+      if (submitValues.title.length < 1) {
+        this.titleErrors = ["Please add a title"];
+        return;
+      }
+
       if (this.isNewTask) {
         this.addTask(submitValues);
         this.resetForm();
@@ -120,7 +128,8 @@ export default {
       values: {
         ...this.getDefaultValues(),
         ...this.task
-      }
+      },
+      titleErrors: []
     };
   },
   watch: {

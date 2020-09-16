@@ -18,7 +18,8 @@ import {
   removeLink,
   internalUpdateSingle,
   getLinksToTask,
-  getByProject
+  getByProject,
+  getEarliestStartDateOfTask
 } from "@/store/tasks/types";
 import {
   addBusinessDays,
@@ -77,6 +78,22 @@ export default {
     },
     [getLinksToTask]: (state, getters) => taskId => {
       return getters[getAll].filter(t => t.links.includes(taskId));
+    },
+    [getEarliestStartDateOfTask]: (state, getters) => taskId => {
+      let earliestStartDate = null;
+      const linksToThisTask = getters[getLinksToTask](taskId);
+      if (linksToThisTask.length < 1) {
+        return null;
+      }
+
+      linksToThisTask.forEach(linkedTask => {
+        if (
+          earliestStartDate === null ||
+          earliestStartDate.isBefore(linkedTask.end)
+        )
+          earliestStartDate = linkedTask.end;
+      });
+      return addBusinessDays(earliestStartDate, 1).startOf("d");
     }
   },
   mutations: {
@@ -136,18 +153,6 @@ export default {
           const end = addBusinessDays(start, getDuration(linkedTask) - 1).endOf(
             "d"
           );
-          dispatch(update, { ...linkedTask, start, end });
-        }
-      });
-
-      const linksToThisTask = getters[getLinksToTask](task.id);
-      linksToThisTask.forEach(linkedTask => {
-        if (linkedTask.end.isAfter(task.start)) {
-          const end = addBusinessDays(task.start, -1).endOf("d");
-          const start = addBusinessDays(
-            end,
-            -(getDuration(linkedTask) - 1)
-          ).startOf("d");
           dispatch(update, { ...linkedTask, start, end });
         }
       });

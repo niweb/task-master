@@ -12,16 +12,44 @@
     @resizestop="onResize"
     @dragstop="onDrag"
     :onDragStart="onDragStart"
-    class-name-handle="task__handle"
+    class-name-handle="task__resize-handle"
+    drag-handle=".task__drag-area"
     class="task"
     :style="cssVars"
+    :data-id="task.id"
   >
     <div class="task__content">
-      <span class="task__title">{{ task.title }}</span>
+      <template v-if="isCurrentlyLinking && !isLinkingTask">
+        <v-btn
+          v-if="!isLinkedToLinkingTask"
+          x-small
+          icon
+          :color="this.contrastColor"
+          class="task__link-btn mr-1"
+          @click="addLink"
+        >
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+        <v-btn
+          v-else
+          x-small
+          icon
+          :color="this.contrastColor"
+          class="task__link-btn mr-1"
+          @click="removeLink"
+        >
+          <v-icon>mdi-minus</v-icon>
+        </v-btn>
+      </template>
+
+      <div class="task__drag-area">
+        <span class="task__title">{{ task.title }}</span>
+      </div>
+
       <v-btn
         x-small
         icon
-        color="white"
+        :color="this.contrastColor"
         class="task__edit-btn"
         @click.stop="dialog = true"
       >
@@ -30,11 +58,32 @@
       <v-btn
         x-small
         icon
-        color="white"
+        :color="this.contrastColor"
         class="task__delete-btn"
         @click="deleteTask(task.id)"
       >
         <v-icon>mdi-trash-can</v-icon>
+      </v-btn>
+
+      <v-btn
+        v-if="!isCurrentlyLinking"
+        x-small
+        icon
+        :color="this.contrastColor"
+        class="task__link-start-btn"
+        @click="startLinking"
+      >
+        <v-icon>mdi-link-variant</v-icon>
+      </v-btn>
+      <v-btn
+        v-else-if="isCurrentlyLinking && isLinkingTask"
+        x-small
+        icon
+        :color="this.contrastColor"
+        class="task__link-cancel-btn"
+        @click="endLinking"
+      >
+        <v-icon>mdi-link-variant-off</v-icon>
       </v-btn>
     </div>
     <v-dialog v-model="dialog" max-width="400">
@@ -45,13 +94,23 @@
 
 <script>
 import VueDraggableResizable from "vue-draggable-resizable";
-import { mapMutations } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import moment from "moment";
 
+import { getContrastColor } from "@/utils";
 import TaskForm from "@/components/tasks/TaskForm";
-import { isTask } from "@/store/tasks/schema";
+
 import { modules } from "@/store";
-import { edit, remove } from "@/store/tasks/types";
+import { isTask } from "@/store/tasks/schema";
+import {
+  addLink,
+  update,
+  remove,
+  getLinksFromTask,
+  removeLink
+} from "@/store/tasks/types";
+import { getById } from "@/store/projects/types";
+import { getLinkingTask, setLinkingTask } from "@/store/ui/types";
 
 export default {
   name: "Task",
@@ -92,6 +151,18 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(modules.tasks, { getLinksFromTask: getLinksFromTask }),
+    ...mapGetters(modules.projects, { getProject: getById }),
+    ...mapGetters(modules.ui, { linkingTask: getLinkingTask }),
+    project() {
+      return this.getProject(this.task.project);
+    },
+    color() {
+      return this.project ? this.project.color : "#5f5f5f";
+    },
+    contrastColor() {
+      return getContrastColor(this.color);
+    },
     left() {
       return this.getSpaceBetween(this.firstDayInCalendar, this.task.start);
     },
@@ -100,12 +171,38 @@ export default {
         this.getSpaceBetween(this.task.start, this.task.end) + this.pixelsPerDay //fill column for end day
       );
     },
+    isCurrentlyLinking() {
+      return this.linkingTask !== null;
+    },
+    linkingTaskLinks() {
+      return this.isCurrentlyLinking
+        ? this.getLinksFromTask(this.linkingTask)
+        : [];
+    },
+    isLinkingTask() {
+      return this.linkingTask === this.task.id;
+    },
+    isLinkedToLinkingTask() {
+      return this.linkingTaskLinks.includes(this.task.id);
+    },
     cssVars() {
-      return { "--drag-cursor": this.dragging ? "grabbing" : "grab" };
+      return {
+        "--drag-cursor": this.dragging ? "grabbing" : "grab",
+        "--color": this.color,
+        "--contrast-color": this.contrastColor
+      };
     }
   },
   methods: {
-    ...mapMutations(modules.tasks, { editTask: edit, deleteTask: remove }),
+    ...mapMutations(modules.tasks, {
+      removeLinkInStore: removeLink
+    }),
+    ...mapActions(modules.tasks, {
+      deleteTask: remove,
+      addLinkInStore: addLink,
+      editTask: update
+    }),
+    ...mapMutations(modules.ui, { setLinkingTask: setLinkingTask }),
     getSpaceBetween(start, end) {
       return end.diff(start, "d") * this.pixelsPerDay;
     },
@@ -130,6 +227,20 @@ export default {
           .endOf("d");
         this.editTask({ ...this.task, start, end });
       }
+    },
+    startLinking() {
+      this.setLinkingTask(this.task.id);
+    },
+    addLink() {
+      this.addLinkInStore({ from: this.linkingTask, to: this.task.id });
+      this.endLinking();
+    },
+    removeLink() {
+      this.removeLinkInStore({ from: this.linkingTask, to: this.task.id });
+      this.endLinking();
+    },
+    endLinking() {
+      this.setLinkingTask(null);
     }
   }
 };
@@ -137,14 +248,13 @@ export default {
 
 <style lang="scss">
 .task {
-  background-color: #2c3e50;
-  color: #fff;
+  background-color: var(--color);
+  color: var(--contrast-color);
   border-radius: 5px;
   cursor: pointer;
   display: flex;
 
   &__content {
-    cursor: var(--drag-cursor);
     flex: 1 1 auto;
     padding: 2px 5px;
     overflow: hidden;
@@ -156,17 +266,22 @@ export default {
     align-items: center;
   }
 
-  &__title {
-    flex-shrink: 1;
-    margin-right: auto;
+  &__drag-area {
+    cursor: var(--drag-cursor);
+    flex: 1 1 auto;
     overflow: hidden;
+  }
+
+  &__title {
+    margin-right: auto;
     text-overflow: ellipsis;
   }
 
-  &__handle {
+  &__resize-handle {
     display: block !important;
     flex-shrink: 0;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: var(--contrast-color);
+    opacity: 0.3;
     height: 100%;
     width: 5px;
 

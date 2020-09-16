@@ -1,4 +1,4 @@
 <?php
   /** Serve SPA from root URL */
-  include("client/public/index.html");
+  include("client/dist/index.html");
 ?>

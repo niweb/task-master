@@ -1,16 +1,18 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
-import { add, getAll, edit, set, remove } from "@/store/assignees/types";
+import { add, getAll, edit, set, remove, reset } from "@/store/assignees/types";
 import { generateNewId } from "@/utils";
 import { modules } from "@/store";
 import { removeByAssignee } from "@/store/tasks/types";
 
 Vue.use(Vuex);
 
+const initialState = () => [{ id: 0, name: "Default" }];
+
 export default {
   namespaced: true,
-  state: [{ id: 0, name: "Default" }],
+  state: initialState,
   getters: {
     [getAll]: state => state
   },
@@ -19,17 +21,25 @@ export default {
       state.splice(0);
       state.push(...list);
     },
+    [reset]: state => {
+      state.splice(0);
+      state.push(...initialState());
+    },
     [add]: (state, assignee) => {
-      assignee.id = generateNewId(Object.keys(state));
+      assignee.id = generateNewId(state.map(p => p.id));
       state.push(assignee);
     },
     [edit]: (state, assignee) => {
       const i = state.findIndex(a => a.id === assignee.id);
       Vue.set(state, i, assignee);
-    },
-    [remove](state, assigneeId) {
+    }
+  },
+  actions: {
+    [remove]({ state, dispatch }, assigneeId) {
       const i = state.findIndex(a => a.id === assigneeId);
-      this.commit(`${modules.tasks}/${removeByAssignee}`, assigneeId);
+      dispatch(`${modules.tasks}/${removeByAssignee}`, assigneeId, {
+        root: true
+      });
       Vue.delete(state, i);
     }
   }

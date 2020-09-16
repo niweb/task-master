@@ -226,6 +226,10 @@ export default {
       this.dragging = false;
     },
     updateTask(x, width) {
+      const assignee = Number(sessionStorage.getItem("assigneeID"));
+      if (this.task.assignee !== assignee) {
+        this.editTask({ ...this.task, assignee });
+      }
       if (x !== this.left || width !== this.width) {
         const start = this.getDayByPositionX(x).startOf("d");
         const end = this.getDayByPositionX(x + width - 1).endOf("d");

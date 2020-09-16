@@ -4,6 +4,7 @@
     :style="laneCssVars"
     @mousedown.self="onMouseDown"
     @mouseup="onMouseUp"
+    @mouseover="onMouseOver"
   >
     <NameTag
       :class="`lane__name-tag ${this.dragHandleClass}`"
@@ -58,6 +59,10 @@ export default {
     };
   },
   methods: {
+    onMouseOver() {
+      sessionStorage.setItem("assigneeID", this.assignee.id);
+    },
+
     onMouseDown(e) {
       const startDay = this.getDayByPositionX(e.offsetX);
       this.newTaskDates = [startDay, startDay];

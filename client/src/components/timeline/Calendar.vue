@@ -26,7 +26,7 @@
       @zoom="onZoom"
       :can-zoom-in="columnWidth < 200"
       :can-zoom-out="columnWidth > 30"
-      @jump="scrolltoToday"
+      @jumpToToday="scrollToToday"
     >
     </ZoomControls>
   </div>
@@ -137,7 +137,7 @@ export default {
       this.setPixelsPerDay(newColumnWidth);
       this.$el.scrollTo(daysOutsideViewport * newColumnWidth, 0);
     },
-    scrolltoToday() {
+    scrollToToday() {
       this.scrollToDate(moment());
     }
   },
@@ -145,7 +145,7 @@ export default {
     this.loadInitialDays();
   },
   mounted() {
-    this.scrollToDate(moment());
+    this.scrollToToday();
   }
 };
 </script>

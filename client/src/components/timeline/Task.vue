@@ -18,74 +18,100 @@
     :style="cssVars"
     :data-id="task.id"
   >
-    <div class="task__content">
-      <template v-if="isCurrentlyLinking && !isLinkingTask">
-        <v-btn
-          v-if="!isLinkedToLinkingTask"
-          x-small
-          icon
-          :color="this.contrastColor"
-          class="task__link-btn mr-1"
-          @click="addLink"
-        >
-          <v-icon>mdi-plus</v-icon>
-        </v-btn>
-        <v-btn
-          v-else
-          x-small
-          icon
-          :color="this.contrastColor"
-          class="task__link-btn mr-1"
-          @click="removeLink"
-        >
-          <v-icon>mdi-minus</v-icon>
-        </v-btn>
+    <v-tooltip top :disabled="!enableTooltip">
+      <template v-slot:activator="{ on }">
+        <div class="task__content" v-on="on">
+          <template v-if="isCurrentlyLinking && !isLinkingTask">
+            <v-btn
+              v-if="!isLinkedToLinkingTask"
+              x-small
+              icon
+              :color="contrastColor"
+              class="task__link-btn mr-1"
+              @click="addLink"
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+            <v-btn
+              v-else
+              x-small
+              icon
+              :color="contrastColor"
+              class="task__link-btn mr-1"
+              @click="removeLink"
+            >
+              <v-icon>mdi-minus</v-icon>
+            </v-btn>
+          </template>
+
+          <div class="task__drag-area" ref="titleContainer">
+            <span class="task__title" ref="titleSpan">
+              {{ task.title }}
+            </span>
+          </div>
+
+          <template v-if="isCurrentlyLinking">
+            <template v-if="isLinkingTask">
+              <v-btn
+                x-small
+                icon
+                :color="contrastColor"
+                class="task__link-cancel-btn"
+                @click.stop="endLinking"
+              >
+                <v-icon>mdi-link-variant-off</v-icon>
+              </v-btn>
+            </template>
+          </template>
+          <template v-else>
+            <v-menu
+              open-on-hover
+              bottom
+              offset-y
+              nudge-left="25"
+              v-if="actionButtonsInMenu"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  :color="contrastColor"
+                  x-small
+                  icon
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon>mdi-chevron-down</v-icon>
+                </v-btn>
+              </template>
+
+              <v-sheet class="pa-1">
+                <template v-for="({ onClick, icon }, index) in actions">
+                  <v-btn :key="index" x-small icon @click.stop="onClick">
+                    <v-icon>{{ icon }}</v-icon>
+                  </v-btn>
+                </template>
+              </v-sheet>
+            </v-menu>
+
+            <template v-else>
+              <template v-for="({ cls, onClick, icon }, index) in actions">
+                <v-btn
+                  :key="index"
+                  x-small
+                  icon
+                  :color="contrastColor"
+                  :class="cls"
+                  @click.stop="onClick"
+                >
+                  <v-icon>{{ icon }}</v-icon>
+                </v-btn>
+              </template>
+            </template>
+          </template>
+        </div>
       </template>
+      <span>{{ task.title }}</span>
+    </v-tooltip>
 
-      <div class="task__drag-area">
-        <span class="task__title">{{ task.title }}</span>
-      </div>
-
-      <v-btn
-        x-small
-        icon
-        :color="this.contrastColor"
-        class="task__edit-btn"
-        @click.stop="dialog = true"
-      >
-        <v-icon>mdi-pencil</v-icon>
-      </v-btn>
-      <v-btn
-        x-small
-        icon
-        :color="this.contrastColor"
-        class="task__delete-btn"
-        @click="deleteTask(task.id)"
-      >
-        <v-icon>mdi-trash-can</v-icon>
-      </v-btn>
-
-      <v-btn
-        v-if="!isCurrentlyLinking"
-        x-small
-        icon
-        :color="this.contrastColor"
-        class="task__link-start-btn"
-        @click="startLinking"
-      >
-        <v-icon>mdi-link-variant</v-icon>
-      </v-btn>
-      <v-btn
-        v-else-if="isCurrentlyLinking && isLinkingTask"
-        x-small
-        icon
-        :color="this.contrastColor"
-        class="task__link-cancel-btn"
-        @click="endLinking"
-      >
-        <v-icon>mdi-link-variant-off</v-icon>
-      </v-btn>
-    </div>
     <v-dialog v-model="dialog" max-width="400">
       <TaskForm :task="task" @submit="dialog = false"></TaskForm>
     </v-dialog>
@@ -103,10 +129,10 @@ import { modules } from "@/store";
 import { isTask } from "@/store/tasks/schema";
 import {
   addLink,
-  update,
-  remove,
   getLinksFromTask,
-  removeLink
+  remove,
+  removeLink,
+  update
 } from "@/store/tasks/types";
 import { getById } from "@/store/projects/types";
 import { getLinkingTask, setLinkingTask } from "@/store/ui/types";
@@ -140,9 +166,20 @@ export default {
     return {
       dialog: false,
       dragging: false,
-      marginY: 1
+      marginY: 1,
+      enableTooltip: false,
+      fab: false
     };
   },
+
+  mounted() {
+    this.calculateTooltipEnabled();
+  },
+
+  updated() {
+    this.calculateTooltipEnabled();
+  },
+
   computed: {
     ...mapGetters(modules.tasks, { getLinksFromTask: getLinksFromTask }),
     ...mapGetters(modules.projects, { getProject: getById }),
@@ -164,6 +201,40 @@ export default {
     },
     width() {
       return this.getSpaceBetweenDays(this.task.start, this.task.end, true);
+    },
+    actionButtonsInMenu() {
+      return this.width < 150;
+    },
+    actions() {
+      return [
+        {
+          cls: "task__edit-btn",
+          onClick: () => (this.dialog = true),
+          icon: "mdi-pencil"
+        },
+        {
+          cls: "task__delete-btn",
+          onClick: () => this.deleteTask(this.task.id),
+          icon: "mdi-trash-can"
+        },
+        ...(this.isCurrentlyLinking
+          ? []
+          : [
+              {
+                cls: "task__link-start-btn",
+                onClick: this.startLinking,
+                icon: "mdi-link-variant"
+              }
+            ])
+        // ...(this.isCurrentlyLinking &&
+        //   this.isLinkingTask && [
+        //     {
+        //       cls: "task__link-cancel-btn",
+        //       onClick: this.endLinking,
+        //       icon: "mdi-link-variant-off"
+        //     }
+        //   ])
+      ];
     },
     isCurrentlyLinking() {
       return this.linkingTask !== null;
@@ -197,6 +268,13 @@ export default {
       editTask: update
     }),
     ...mapMutations(modules.ui, { setLinkingTask: setLinkingTask }),
+    calculateTooltipEnabled() {
+      this.$nextTick(() => {
+        const containerWidth = this.$refs.titleContainer?.offsetWidth;
+        const textWidth = this.$refs.titleSpan?.offsetWidth;
+        this.enableTooltip = containerWidth < textWidth;
+      });
+    },
     onResize(x, y, width) {
       this.updateTask(x, width);
     },
@@ -256,6 +334,7 @@ export default {
     cursor: var(--drag-cursor);
     flex: 1 1 auto;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__title {

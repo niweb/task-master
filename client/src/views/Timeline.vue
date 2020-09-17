@@ -23,7 +23,7 @@ import ProjectButtons from "@/components/projects/ProjectButtons";
 import Planner from "@/components/timeline/Planner";
 
 import { modules } from "@/store";
-import { getRequestInProgress, load } from "@/store/boards/types";
+import { getNeedsSave, getRequestInProgress, load } from "@/store/boards/types";
 import { requestTypes } from "../store/boards/types";
 
 export default {
@@ -35,16 +35,29 @@ export default {
     ProjectButtons
   },
   computed: {
-    ...mapGetters(modules.boards, { requestStatus: getRequestInProgress }),
+    ...mapGetters(modules.boards, {
+      requestStatus: getRequestInProgress,
+      needsSave: getNeedsSave
+    }),
     loading() {
       return this.requestStatus === requestTypes.load;
     }
   },
   methods: {
-    ...mapActions(modules.boards, { triggerLoad: load })
+    ...mapActions(modules.boards, { triggerLoad: load }),
+    onPageLeave(event) {
+      if (this.needsSave) {
+        event.returnValue =
+          "Are you sure you want to leave this page? Any unsaved changes will be discarded.";
+      }
+    }
   },
   beforeMount() {
     this.triggerLoad();
+    window.addEventListener("beforeunload", this.onPageLeave);
+  },
+  beforeDestroy() {
+    window.removeEventListener("beforeunload", this.onPageLeave);
   }
 };
 </script>

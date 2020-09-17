@@ -1,5 +1,8 @@
 <template>
-  <v-btn-toggle rounded v-model="activeButton" @change="resetActiveButton">
+  <v-btn-toggle v-model="activeButton" @change="resetActiveButton">
+    <v-btn @click="$emit('jumpToToday')">
+      <v-icon>mdi-calendar-today</v-icon>
+    </v-btn>
     <v-btn fab :disabled="!canZoomOut" @click="$emit('zoom', -1)">
       <v-icon>mdi-magnify-minus-outline</v-icon>
     </v-btn>

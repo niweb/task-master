@@ -55,6 +55,9 @@ export default {
   beforeMount() {
     this.triggerLoad();
     window.addEventListener("beforeunload", this.onPageLeave);
+  },
+  beforeDestroy() {
+    window.removeEventListener("beforeunload", this.onPageLeave);
   }
 };
 </script>

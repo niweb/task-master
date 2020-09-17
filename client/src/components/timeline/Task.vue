@@ -167,8 +167,7 @@ export default {
       dialog: false,
       dragging: false,
       marginY: 1,
-      enableTooltip: false,
-      fab: false
+      enableTooltip: false
     };
   },
 
@@ -226,14 +225,6 @@ export default {
                 icon: "mdi-link-variant"
               }
             ])
-        // ...(this.isCurrentlyLinking &&
-        //   this.isLinkingTask && [
-        //     {
-        //       cls: "task__link-cancel-btn",
-        //       onClick: this.endLinking,
-        //       icon: "mdi-link-variant-off"
-        //     }
-        //   ])
       ];
     },
     isCurrentlyLinking() {

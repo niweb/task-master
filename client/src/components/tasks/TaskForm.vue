@@ -8,11 +8,12 @@
         outlined
         autofocus
       ></v-text-field>
-      <v-text-field
+      <v-textarea
         v-model="values.description"
         label="Description"
+        rows="3"
         outlined
-      ></v-text-field>
+      ></v-textarea>
       <v-select
         v-model="values.assignee"
         :items="assignees"

@@ -20,7 +20,11 @@ import {
   getLinksToTask,
   getByProject
 } from "@/store/tasks/types";
-import { generateNewId } from "@/utils";
+import {
+  addBusinessDays,
+  generateNewId,
+  getBusinessDaysBetween
+} from "@/utils";
 import { resetAll, setAll } from "./types";
 
 Vue.use(Vuex);
@@ -44,6 +48,8 @@ const selectByAssignee = state => assigneeId =>
   selectAll(state).filter(task => task.assignee === assigneeId);
 const selectByProject = state => projectId =>
   selectAll(state).filter(task => task.project === projectId);
+
+const getDuration = task => getBusinessDaysBetween(task.start, task.end).length;
 
 export default {
   namespaced: true,
@@ -126,42 +132,23 @@ export default {
       const linksFromThisTask = task.links.map(getters[getOne]);
       linksFromThisTask.forEach(linkedTask => {
         if (linkedTask.start.isBefore(task.end)) {
-          const daysBetween = linkedTask.end.diff(linkedTask.start, "d");
-          const start = task.end
-            .clone()
-            .add(1, "d")
-            .startOf("d");
-          const end = start
-            .clone()
-            .add(daysBetween, "d")
-            .endOf("d");
-
-          dispatch(update, {
-            ...linkedTask,
-            start,
-            end
-          });
+          const start = addBusinessDays(task.end, 1).startOf("d");
+          const end = addBusinessDays(start, getDuration(linkedTask) - 1).endOf(
+            "d"
+          );
+          dispatch(update, { ...linkedTask, start, end });
         }
       });
 
       const linksToThisTask = getters[getLinksToTask](task.id);
       linksToThisTask.forEach(linkedTask => {
         if (linkedTask.end.isAfter(task.start)) {
-          const daysBetween = linkedTask.end.diff(linkedTask.start, "d");
-          const end = task.start
-            .clone()
-            .subtract(1, "d")
-            .endOf("d");
-          const start = end
-            .clone()
-            .subtract(daysBetween, "d")
-            .startOf("d");
-
-          dispatch(update, {
-            ...linkedTask,
-            start,
-            end
-          });
+          const end = addBusinessDays(task.start, -1).endOf("d");
+          const start = addBusinessDays(
+            end,
+            -(getDuration(linkedTask) - 1)
+          ).startOf("d");
+          dispatch(update, { ...linkedTask, start, end });
         }
       });
     },

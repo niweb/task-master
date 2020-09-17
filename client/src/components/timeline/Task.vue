@@ -95,7 +95,6 @@
 <script>
 import VueDraggableResizable from "vue-draggable-resizable";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import moment from "moment";
 
 import { getContrastColor } from "@/utils";
 import TaskForm from "@/components/tasks/TaskForm";
@@ -111,6 +110,8 @@ import {
 } from "@/store/tasks/types";
 import { getById } from "@/store/projects/types";
 import { getLinkingTask, setLinkingTask } from "@/store/ui/types";
+import { getPixelsPerDay } from "@/store/calendar/types";
+import dates from "@/mixins/dates";
 
 export default {
   name: "Task",
@@ -128,17 +129,9 @@ export default {
       type: Number,
       required: false,
       default: 30
-    },
-    firstDayInCalendar: {
-      type: moment,
-      required: true
-    },
-    pixelsPerDay: {
-      type: Number,
-      required: false,
-      default: 50
     }
   },
+  mixins: [dates],
   components: {
     TaskForm,
     VueDraggableResizable
@@ -154,6 +147,9 @@ export default {
     ...mapGetters(modules.tasks, { getLinksFromTask: getLinksFromTask }),
     ...mapGetters(modules.projects, { getProject: getById }),
     ...mapGetters(modules.ui, { linkingTask: getLinkingTask }),
+    ...mapGetters(modules.calendar, {
+      pixelsPerDay: getPixelsPerDay
+    }),
     project() {
       return this.getProject(this.task.project);
     },
@@ -164,12 +160,10 @@ export default {
       return getContrastColor(this.color);
     },
     left() {
-      return this.getSpaceBetween(this.firstDayInCalendar, this.task.start);
+      return this.getPositionOfDay(this.task.start);
     },
     width() {
-      return (
-        this.getSpaceBetween(this.task.start, this.task.end) + this.pixelsPerDay //fill column for end day
-      );
+      return this.getSpaceBetweenDays(this.task.start, this.task.end, true);
     },
     isCurrentlyLinking() {
       return this.linkingTask !== null;
@@ -203,12 +197,6 @@ export default {
       editTask: update
     }),
     ...mapMutations(modules.ui, { setLinkingTask: setLinkingTask }),
-    getSpaceBetween(start, end) {
-      return end.diff(start, "d") * this.pixelsPerDay;
-    },
-    getDayAfter(start, pixels) {
-      return moment(start).add(pixels / this.pixelsPerDay, "d");
-    },
     onResize(x, y, width) {
       this.updateTask(x, width);
     },
@@ -221,10 +209,8 @@ export default {
     },
     updateTask(x, width) {
       if (x !== this.left || width !== this.width) {
-        const start = this.getDayAfter(this.firstDayInCalendar, x).startOf("d");
-        const end = this.getDayAfter(start, width)
-          .subtract(1, "d")
-          .endOf("d");
+        const start = this.getDayByPositionX(x).startOf("d");
+        const end = this.getDayByPositionX(x + width - 1).endOf("d");
         this.editTask({ ...this.task, start, end });
       }
     },

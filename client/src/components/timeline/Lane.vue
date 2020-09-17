@@ -21,6 +21,10 @@ import moment from "moment";
 import TaskForm from "@/components/tasks/TaskForm";
 import { isAssignee } from "@/store/assignees/schema";
 import NameTag from "@/components/assignees/NameTag";
+import dates from "@/mixins/dates";
+import { getScrollXOffset } from "@/store/calendar/types";
+import { mapGetters } from "vuex";
+import { modules } from "@/store";
 
 export default {
   name: "Lane",
@@ -29,24 +33,10 @@ export default {
     NameTag
   },
   props: {
-    dates: {
-      type: Array,
-      validator: prop => prop.every(e => e instanceof moment)
-    },
     assignee: {
       type: Object,
       validator: isAssignee,
       required: true
-    },
-    columnWidth: {
-      type: Number,
-      default: 50,
-      required: false
-    },
-    scrollOffsetX: {
-      type: Number,
-      default: 0,
-      required: false
     },
     height: {
       type: Number,
@@ -59,6 +49,7 @@ export default {
       required: false
     }
   },
+  mixins: [dates],
   data() {
     return {
       newTaskDates: [null, null],
@@ -68,12 +59,12 @@ export default {
   },
   methods: {
     onMouseDown(e) {
-      const startDay = this.getDayByOffset(e.offsetX);
+      const startDay = this.getDayByPositionX(e.offsetX);
       this.newTaskDates = [startDay, startDay];
     },
 
     onMouseUp(e) {
-      this.newTaskDates[1] = this.getDayByOffset(e.offsetX);
+      this.newTaskDates[1] = this.getDayByPositionX(e.offsetX);
       if (!this.newTaskDates.includes(null)) {
         this.createNewTask();
       }
@@ -91,11 +82,6 @@ export default {
       this.dialog = true;
     },
 
-    getDayByOffset(offset) {
-      const index = Math.floor(offset / this.columnWidth);
-      return this.dates[index];
-    },
-
     tasksOverlap(a, b) {
       const rangeA = moment.range(a.start, a.end);
       const rangeB = moment.range(b.start, b.end);
@@ -103,9 +89,11 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(modules.calendar, {
+      scrollOffsetX: getScrollXOffset
+    }),
     laneCssVars() {
       return {
-        "--number-of-columns": this.dates.length,
         "--height": `${this.height}px`,
         "--scroll-offset-x": `${this.scrollOffsetX}px`
       };

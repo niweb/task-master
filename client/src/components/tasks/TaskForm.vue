@@ -8,6 +8,12 @@
         outlined
         autofocus
       ></v-text-field>
+      <v-textarea
+        v-model="values.description"
+        label="Description"
+        rows="3"
+        outlined
+      ></v-textarea>
       <v-select
         v-model="values.assignee"
         :items="assignees"
@@ -108,6 +114,7 @@ export default {
       return {
         id: null,
         title: "",
+        description: "",
         assignee: 0,
         project: this.selectedProject,
         start: moment(),

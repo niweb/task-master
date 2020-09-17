@@ -26,6 +26,7 @@
       @zoom="onZoom"
       :can-zoom-in="columnWidth < 200"
       :can-zoom-out="columnWidth > 30"
+      @jump="jumptotoday"
     >
     </ZoomControls>
   </div>
@@ -135,6 +136,12 @@ export default {
       const newColumnWidth = this.columnWidth + level * zoomFactor;
       this.setPixelsPerDay(newColumnWidth);
       this.$el.scrollTo(daysOutsideViewport * newColumnWidth, 0);
+    },
+    jumptotoday() {
+    const today = moment();
+    const indexOfToday = this.days.findIndex(day => day.isSame(today, "d"));
+    const calendarWidth = this.$el.clientWidth;
+    this.$el.scrollTo(indexOfToday * this.columnWidth - calendarWidth / 3, 0);
     }
   },
   created() {

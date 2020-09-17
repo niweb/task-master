@@ -3,6 +3,9 @@
     <v-btn fab :disabled="!canZoomOut" @click="$emit('zoom', -1)">
       <v-icon>mdi-magnify-minus-outline</v-icon>
     </v-btn>
+    <v-btn @click="$emit('jump')">
+      <v-icon>mdi-magnify</v-icon>   
+    </v-btn>
     <v-btn fab :disabled="!canZoomIn" @click="$emit('zoom', 1)">
       <v-icon>mdi-magnify-plus-outline</v-icon>
     </v-btn>

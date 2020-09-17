@@ -10,8 +10,9 @@
     :h="height - marginY * 2"
     :minWidth="pixelsPerDay"
     @resizestop="onResize"
-    @dragstop="onDrag"
+    @dragstop="onDragStop"
     :onDragStart="onDragStart"
+    :onDrag="onDrag"
     class-name-handle="task__resize-handle"
     drag-handle=".task__drag-area"
     class="task"
@@ -129,6 +130,7 @@ import { modules } from "@/store";
 import { isTask } from "@/store/tasks/schema";
 import {
   addLink,
+  getEarliestStartDateOfTask,
   getLinksFromTask,
   remove,
   removeLink,
@@ -180,7 +182,10 @@ export default {
   },
 
   computed: {
-    ...mapGetters(modules.tasks, { getLinksFromTask: getLinksFromTask }),
+    ...mapGetters(modules.tasks, {
+      getLinksFromTask: getLinksFromTask,
+      getEarliestStartDateOfTask: getEarliestStartDateOfTask
+    }),
     ...mapGetters(modules.projects, { getProject: getById }),
     ...mapGetters(modules.ui, { linkingTask: getLinkingTask }),
     ...mapGetters(modules.calendar, {
@@ -194,6 +199,13 @@ export default {
     },
     contrastColor() {
       return getContrastColor(this.color);
+    },
+    minX() {
+      const earliestStartDate = this.getEarliestStartDateOfTask(this.task.id);
+      if (!earliestStartDate) {
+        return null;
+      }
+      return this.getPositionOfDay(earliestStartDate);
     },
     left() {
       return this.getPositionOfDay(this.task.start);
@@ -269,14 +281,24 @@ export default {
     onResize(x, y, width) {
       this.updateTask(x, width);
     },
-    onDrag(x) {
-      this.updateTask(x, this.width);
-      this.dragging = false;
-    },
     onDragStart() {
       this.dragging = true;
     },
+    onDrag(x) {
+      if (this.minX && x < this.minX) {
+        this.dragging = false;
+        return false;
+      }
+    },
+    onDragStop(x) {
+      this.updateTask(x, this.width);
+      this.dragging = false;
+    },
     updateTask(x, width) {
+      const assignee = Number(sessionStorage.getItem("assigneeID"));
+      if (this.task.assignee !== assignee) {
+        this.editTask({ ...this.task, assignee });
+      }
       if (x !== this.left || width !== this.width) {
         const start = this.getDayByPositionX(x).startOf("d");
         const end = this.getDayByPositionX(x + width - 1).endOf("d");

@@ -6,6 +6,7 @@ export const getByProject = "GET_BY_PROJECT";
 export const getLinks = "GET_LINKS";
 export const getLinksFromTask = "GET_LINKS_FROM_TASK";
 export const getLinksToTask = "GET_LINKS_TO_TASK";
+export const getEarliestStartDateOfTask = "GET_EARLIEST_START_DATE_OF_TASK";
 
 /** Mutations */
 export const setAll = "SET_ALL";
